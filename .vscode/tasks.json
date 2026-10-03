@@ -14,6 +14,12 @@
       "problemMatcher": []
     },
     {
+      "label": "build pages site",
+      "type": "npm",
+      "script": "build:pages",
+      "problemMatcher": []
+    },
+    {
       "label": "test",
       "type": "npm",
       "script": "test",

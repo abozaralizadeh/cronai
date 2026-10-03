@@ -1,0 +1,59 @@
+# Publishes the CronAI Widget Builder, the React Native demo and the widget files to GitHub Pages.
+#
+# One-time setup: repo Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# Result:  https://<user>.github.io/<repo>/            Widget Builder
+#          https://<user>.github.io/<repo>/demo/       React Native component demo
+#          https://<user>.github.io/<repo>/widget/cronai-widget.js   (embed this on any site)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# one deployment at a time; let a running one finish
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Engine tests
+        run: npm test
+
+      - name: Build site (demo + widget + builder)
+        run: npm run build:pages
+        env:
+          SITE_REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

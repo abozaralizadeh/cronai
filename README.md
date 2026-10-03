@@ -101,6 +101,24 @@ Everything visible can be changed, in the web widget and the React Native compon
 | Look | `theme`, CSS variables `--cai-*`, `::part(<section>)` | `theme`, `createTheme()` |
 | Live trigger | `armed` / `arm()` / `crontrigger` event, works with the trigger part hidden | `armed` / `onTrigger`, or `useCronTrigger(schedule)` |
 
+## Free hosting on GitHub Pages
+
+The Widget Builder, the demo and the widget scripts are static files, so GitHub Pages hosts them for free (public repo).
+
+1. Push the repo to GitHub (public).
+2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+3. Push to `main` or `master` (or run the workflow by hand from the Actions tab). `.github/workflows/pages.yml` runs the tests, builds everything with `npm run build:pages` and deploys `site/`.
+
+You get:
+
+| URL | What |
+|---|---|
+| `https://abozaralizadeh.github.io/cronai/` | Widget Builder (its copy-paste code points at this site) |
+| `https://abozaralizadeh.github.io/cronai/demo/` | React Native component demo |
+| `https://abozaralizadeh.github.io/cronai/widget/cronai-widget.js` | the script to embed on any site (also `.lite.js`, `.esm.js`, `cronai-engine.esm.js`, `embed.html`) |
+
+Preview locally: `npm run build:pages && npx serve site` (or any static server). For a custom domain or a user site, build with `SITE_BASE=/`.
+
 ## Quick start
 
 ```bash
@@ -190,6 +208,7 @@ On a VM: `./setup_service.sh` (idempotent: installs Node, deps, tests, builds, i
 | `npm run eval` | typo-robustness benchmark, with vs without the model |
 | `npm run train` | retrain the model → `src/engine/model/weights.ts` |
 | `npm run build:demo` | single-file react-native-web build → `web/dist/index.html` |
+| `npm run build:pages` | everything above + full-page builder → `site/` (what GitHub Pages serves) |
 | `npm run build:widget` | embeddable widget builds + iframe page + builder → `widget/dist/` |
 | `npm run test:widget` | Playwright end-to-end check of the widget (sizes, events, form, CMS mount, iframe, lite) |
 | `npm run server` | demo + API on :8080 |

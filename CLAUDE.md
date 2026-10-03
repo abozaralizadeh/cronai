@@ -34,6 +34,8 @@ widget/builder.template.html    embed-code builder page (published as an artifac
 widget/demo.html                widget test page used by scripts/test_widget.py
 widget/dist/                    BUILT files, committed on purpose (jsDelivr serves them)
 training/train_model.py         numpy-only trainer (synthetic typos), ~25 s
+.github/workflows/pages.yml     GitHub Pages deploy: npm ci, npm test, npm run build:pages, upload site/ (Source must be 'GitHub Actions')
+scripts/build-pages.mjs         site/ = builder (full page, scripts from ./widget/), demo/, widget/*, 404.html (site/ is git-ignored)
 server/                         zero-dep demo + /api/parse server, rotating file logger
 scripts/                        build-web-demo.mjs (esbuild + react-native-web), eval.ts, try.ts, screenshot.py
 tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
@@ -50,6 +52,7 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - Matchers must call `mark(from, to, role)` so the UI chips show what was understood.
 - Exclusions: `except` sets a flag consumed by day/month/dom matchers; time/interval matchers reset it.
 - Every N weeks: compile emits `everyWeeks`; index.ts builds `result.guard` (anchor = Monday 00:00 local of the first run's week minus 3h, so midnight jobs never sit on a week boundary across DST). UIs pin the anchor per sentence (RN `anchors` state, widget `anchors` Map) and accept a saved `anchor`. Use `nextRunsGuarded` everywhere instead of `nextRunsMany`.
+- Builder template placeholders: __SCRIPT_BASE__ (jsDelivr in the artifact build, empty on Pages = same-site ./widget/), __SCRIPT_HINT__, __HEADER_LINKS__, __WIDGET_JS__, __FULL_GZ__, __LITE_GZ__.
 - Visitor mode (`mode="user"`): no cron/tiles/guard by default, notesFor() strips cron wording. Any new visible text goes in DEFAULT_STRINGS (never hard-code), any new UI block gets a Section name so show/hide works in both UIs.
 - Time zones: all next-run code takes an optional IANA `timezone`; SavedSchedule always stores one. createTrigger fires a missed run once on wake-up (`late: true`).
 - Bare hours ("at 9") stay 24h with an assumption, unless a day part ("night") or am/pm context resolves them.
@@ -59,6 +62,7 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - Owner preferences: never do git work unless asked; keep README.md, story.md, CLAUDE.md, setup_service.sh, .vscode/launch.json updated; logs go to journal + size-capped `logs/cronai.log`.
 
 ## Status (2026-10-03)
+- 2026-10-03: GitHub Pages hosting (workflow + build:pages). Action versions: checkout@v6, setup-node@v7, configure-pages@v5, upload-pages-artifact@v5, deploy-pages@v5.
 - 2026-10-03: customisable for site owners whose visitors pick a frequency: mode developer/user, show/hide sections, strings, timezone, SavedSchedule JSON, createTrigger (browser + Node engine bundle), form-value, schedule restore, /api/next. 85 engine tests, 32 widget checks.
 - Model name: **CronLex** (MODEL.name in weights.ts, written by the trainer).
 - 2026-10-03: embeddable `<cron-ai>` widget (3 sizes, auto + 7 themes, full/lite/ESM builds, iframe embed, CMS auto-mount, builder page), server routes /widget/* and /embed.

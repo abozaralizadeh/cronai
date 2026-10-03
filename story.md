@@ -86,8 +86,13 @@ Hard part: time zones without shipping a time zone database. The engine walks ca
 
 ![](docs/screenshots/11-user-mode.png)
 
+## Free hosting
+
+Everything a visitor needs is static: one HTML page for the builder, one for the demo and a few JS files. So the whole thing deploys to GitHub Pages with a single workflow that runs the tests, builds the site and publishes it. The builder even notices where it's hosted, so its copy-paste snippets point at the same site that serves the widget.
+
 ## Progress log
 
+- **2026-10-03**: free hosting on GitHub Pages (workflow + `npm run build:pages`): builder at the root, demo at /demo, widget scripts at /widget.
 - **2026-10-03**: visitor mode, show/hide for every part, translatable strings, time zones, SavedSchedule JSON + createTrigger for browsers and Node, form-value options, /api/next. 85 engine tests, 32 widget checks.
 - **2026-10-03**: "every N weeks" now returns a week guard (crontab line + JS check + correct next runs/trigger) instead of silently behaving like weekly; +9 engine tests, +5 widget checks.
 - **2026-10-03**: model named CronLex. Embeddable `<cron-ai>` web widget (mini/compact/full, auto + 7 themes, full/lite/ESM builds, iframe, CMS mount, form support), embed-code builder page, 13 widget e2e checks.

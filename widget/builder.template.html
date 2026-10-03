@@ -38,6 +38,9 @@
   h1 em { font-style: normal; color: var(--accent); }
   .lede { color: var(--muted); font-size: 16px; margin: 0; }
   .facts { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+  .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; font-weight: 600; }
+  .links a { color: var(--accent); text-decoration: none; }
+  .links a:hover { text-decoration: underline; }
   .facts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
 
   .grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
@@ -90,6 +93,7 @@
   .codebox { display: flex; flex-direction: column; gap: 8px; }
   .codebox .btn { align-self: flex-end; }
   .hint { font-size: 13px; color: var(--muted); margin: 0; }
+  .hint code { overflow-wrap: anywhere; }
   .hint code, p code { font-family: var(--font-mono); font-size: 0.92em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); }
 
   .sizes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; align-items: start; }
@@ -115,6 +119,7 @@
       <span>Model <b>CronLex</b>, 75k params</span>
       <span>Dependencies <b>0</b></span>
     </div>
+    __HEADER_LINKS__
   </header>
 
   <div class="grid">
@@ -192,7 +197,7 @@
       <div class="field">
         <label class="lbl" for="scriptUrl">Script URL</label>
         <input type="text" id="scriptUrl">
-        <p class="hint">Points at jsDelivr for your GitHub repo and works once <code>widget/dist</code> is pushed. Your VM serves it too, at <code>/widget/cronai-widget.js</code>.</p>
+        <p class="hint">__SCRIPT_HINT__</p>
       </div>
       <div class="checks">
         <label><input type="checkbox" id="optLite"> Lite build</label>
@@ -265,7 +270,8 @@
     ['candy', 'Candy', 'linear-gradient(135deg,#E2459B 50%,#FFF1F8 50%)']
   ];
   var SECTIONS = CronAI.sections.filter(function (s) { return s !== 'themes'; });
-  var DEFAULT_URL = 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@main/widget/dist/';
+  // build-time: jsDelivr for the artifact; empty on GitHub Pages = this site's own /widget/ folder
+  var DEFAULT_URL = '__SCRIPT_BASE__' || new URL('widget/', location.href).href;
   var state = { mode: 'developer', size: 'compact', theme: 'auto', text: 'every weekday at 9am', name: '', lite: false, h12: false, ext: true,
     armed: false, tab: 'html', url: '', heading: '', placeholder: '', tz: '', formValue: '', strings: '', sections: null };
   try { var saved = JSON.parse(localStorage.getItem('cronai-builder-v2') || 'null'); if (saved) for (var k in saved) if (k in state) state[k] = saved[k]; } catch (e) {}
