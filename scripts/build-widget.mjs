@@ -98,7 +98,7 @@ writeFileSync(
   tpl
     .replace('__FULL_GZ__', gz('cronai-widget.js'))
     .replace('__LITE_GZ__', gz('cronai-widget.lite.js'))
-    .replace('__SCRIPT_BASE__', 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@main/widget/dist/')
+    .replace('__SCRIPT_BASE__', 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@master/widget/dist/')
     .replace('__SCRIPT_HINT__', 'Points at jsDelivr for your GitHub repo and works once <code>widget/dist</code> is pushed. GitHub Pages and your VM serve it too, at <code>/widget/cronai-widget.js</code>.')
     .replace('__HEADER_LINKS__', '')
     .replace('__WIDGET_JS__', () => js),

@@ -52,6 +52,7 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - Matchers must call `mark(from, to, role)` so the UI chips show what was understood.
 - Exclusions: `except` sets a flag consumed by day/month/dom matchers; time/interval matchers reset it.
 - Every N weeks: compile emits `everyWeeks`; index.ts builds `result.guard` (anchor = Monday 00:00 local of the first run's week minus 3h, so midnight jobs never sit on a week boundary across DST). UIs pin the anchor per sentence (RN `anchors` state, widget `anchors` Map) and accept a saved `anchor`. Use `nextRunsGuarded` everywhere instead of `nextRunsMany`.
+- The GitHub branch is `master`, so jsDelivr URLs must use `cronai@master` (`@main` returns 404).
 - Builder template placeholders: __SCRIPT_BASE__ (jsDelivr in the artifact build, empty on Pages = same-site ./widget/), __SCRIPT_HINT__, __HEADER_LINKS__, __WIDGET_JS__, __FULL_GZ__, __LITE_GZ__.
 - Visitor mode (`mode="user"`): no cron/tiles/guard by default, notesFor() strips cron wording. Any new visible text goes in DEFAULT_STRINGS (never hard-code), any new UI block gets a Section name so show/hide works in both UIs.
 - Time zones: all next-run code takes an optional IANA `timezone`; SavedSchedule always stores one. createTrigger fires a missed run once on wake-up (`late: true`).

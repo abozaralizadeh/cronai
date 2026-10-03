@@ -466,7 +466,7 @@ ${t.guard.crontab.join(`
   ];
   var SECTIONS = CronAI.sections.filter(function (s) { return s !== 'themes'; });
   // build-time: jsDelivr for the artifact; empty on GitHub Pages = this site's own /widget/ folder
-  var DEFAULT_URL = 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@main/widget/dist/' || new URL('widget/', location.href).href;
+  var DEFAULT_URL = 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@master/widget/dist/' || new URL('widget/', location.href).href;
   var state = { mode: 'developer', size: 'compact', theme: 'auto', text: 'every weekday at 9am', name: '', lite: false, h12: false, ext: true,
     armed: false, tab: 'html', url: '', heading: '', placeholder: '', tz: '', formValue: '', strings: '', sections: null };
   try { var saved = JSON.parse(localStorage.getItem('cronai-builder-v2') || 'null'); if (saved) for (var k in saved) if (k in state) state[k] = saved[k]; } catch (e) {}

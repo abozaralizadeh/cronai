@@ -34,7 +34,7 @@ One script tag, then the tag anywhere. No framework, no build step. Three sizes:
 | one input line + the cron under it | card with chips, tiles, description, next run | everything + next 5 runs, notes, live trigger |
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@main/widget/dist/cronai-widget.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@master/widget/dist/cronai-widget.js" defer></script>
 
 <cron-ai size="compact" theme="auto" value="every weekday at 9am" name="schedule"></cron-ai>
 ```
