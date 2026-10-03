@@ -92,6 +92,7 @@ Everything a visitor needs is static: one HTML page for the builder, one for the
 
 ## Progress log
 
+- **2026-10-03**: Medium post drafted ("I Put a Neural Network Inside a TypeScript File to Kill the Cron Expression"), unpublished, with 9 images: pipeline diagram, a 'type it however you like' examples card (`docs/screenshots/medium-examples.svg/.png`, real engine output), typo fixing, assumptions, every-two-weeks guard, 7-theme collage, widget sizes, visitor mode + JSON, armed trigger.
 - **2026-10-03**: free hosting on GitHub Pages (workflow + `npm run build:pages`): builder at the root, demo at /demo, widget scripts at /widget.
 - **2026-10-03**: visitor mode, show/hide for every part, translatable strings, time zones, SavedSchedule JSON + createTrigger for browsers and Node, form-value options, /api/next. 85 engine tests, 32 widget checks.
 - **2026-10-03**: "every N weeks" now returns a week guard (crontab line + JS check + correct next runs/trigger) instead of silently behaving like weekly; +9 engine tests, +5 widget checks.
