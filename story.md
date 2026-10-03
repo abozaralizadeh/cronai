@@ -92,6 +92,9 @@ Everything a visitor needs is static: one HTML page for the builder, one for the
 
 ## Progress log
 
+- **2026-10-04**: demo video committed through Git LFS (`*.mp4`, `*.mov`, `*.webm` tracked in `.gitattributes`) so the repo history stays small.
+- **2026-10-04**: 29 s LinkedIn demo video of the real widget (`docs/media/cronai-linkedin-4x5.mp4`, 1080x1350, cover `docs/media/cronai-linkedin-cover.png`). Recorded with `scripts/video/record.py` (Playwright CDP screencast + ffmpeg). LinkedIn can't embed CodePen, so native video is the way to show it there.
+- **2026-10-04**: live CodePen demo (https://codepen.io/Abozar-Alizadeh/pen/MYpELpx) embedded in the Medium draft, right after the intro. Loads the widget from jsDelivr (`cronai@master`).
 - **2026-10-04**: fixed widget CDN links (`cronai@main` → `cronai@master`, the repo's real branch); `@main` was a 404.
 - **2026-10-03**: Medium post drafted ("I Put a Neural Network Inside a TypeScript File to Kill the Cron Expression"), unpublished, with 9 images: pipeline diagram, a 'type it however you like' examples card (`docs/screenshots/medium-examples.svg/.png`, real engine output), typo fixing, assumptions, every-two-weeks guard, 7-theme collage, widget sizes, visitor mode + JSON, armed trigger.
 - **2026-10-03**: free hosting on GitHub Pages (workflow + `npm run build:pages`): builder at the root, demo at /demo, widget scripts at /widget.

@@ -46,12 +46,14 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - `npx tsx scripts/try.ts "<sentence>"` to debug a phrase
 - `npm run train` after changing `lexicon.json` or the trainer (feature hashing must match `tinyModel.ts`)
 - `npm run build:demo` then `python3 scripts/screenshot.py` to refresh docs/screenshots
+- `python3 scripts/video/record.py` re-records the LinkedIn demo video (docs/media/, needs ffmpeg; edit SENTENCES in the script)
 
 ## Conventions / gotchas
 - Adding a phrase: add a golden case to `tests/engine.test.ts` first, then a matcher in `interpret.ts` (order in `matchers` matters) or logic in `compile.ts`.
 - Matchers must call `mark(from, to, role)` so the UI chips show what was understood.
 - Exclusions: `except` sets a flag consumed by day/month/dom matchers; time/interval matchers reset it.
 - Every N weeks: compile emits `everyWeeks`; index.ts builds `result.guard` (anchor = Monday 00:00 local of the first run's week minus 3h, so midnight jobs never sit on a week boundary across DST). UIs pin the anchor per sentence (RN `anchors` state, widget `anchors` Map) and accept a saved `anchor`. Use `nextRunsGuarded` everywhere instead of `nextRunsMany`.
+- Videos (`*.mp4`, `*.mov`, `*.webm`) are stored with Git LFS (see `.gitattributes`). Install git-lfs (`brew install git-lfs` / `apt install git-lfs`) before cloning or pushing.
 - The GitHub branch is `master`, so jsDelivr URLs must use `cronai@master` (`@main` returns 404).
 - Builder template placeholders: __SCRIPT_BASE__ (jsDelivr in the artifact build, empty on Pages = same-site ./widget/), __SCRIPT_HINT__, __HEADER_LINKS__, __WIDGET_JS__, __FULL_GZ__, __LITE_GZ__.
 - Visitor mode (`mode="user"`): no cron/tiles/guard by default, notesFor() strips cron wording. Any new visible text goes in DEFAULT_STRINGS (never hard-code), any new UI block gets a Section name so show/hide works in both UIs.

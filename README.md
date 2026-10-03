@@ -2,6 +2,10 @@
 
 A beautiful, themeable **React Native cron trigger component** that turns plain-English schedules into cron expressions using **CronLex**, a tiny on-device AI model. It also ships as a **drop-in web widget** (`<cron-ai>`) for any website. No server, no API key, no native modules, no extra packages: the model weights live inside the source code and run in pure TypeScript.
 
+**Try it live:** [CronAI on CodePen](https://codepen.io/Abozar-Alizadeh/pen/MYpELpx) · [30-second demo video](docs/media/cronai-linkedin-4x5.mp4)
+
+> The demo video is stored with [Git LFS](https://git-lfs.com). Run `git lfs install` once before cloning to get the real file instead of a pointer.
+
 ![Aurora theme](docs/screenshots/02-typos.png)
 
 ```

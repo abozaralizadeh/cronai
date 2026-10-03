@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;width:540px;height:675px;overflow:hidden}
+body{font-family:Inter,system-ui,sans-serif;color:#e8ebf7;
+ background:radial-gradient(120% 80% at 10% 0%,#2a2f7a 0%,transparent 55%),radial-gradient(90% 70% at 100% 100%,#0f5a5a 0%,transparent 55%),#090c1c;
+ display:flex;flex-direction:column;padding:34px 32px 26px;box-sizing:border-box}
+.kick{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:#9aa6ff;font-weight:600}
+h1{font-size:34px;line-height:1.08;margin:10px 0 6px;font-weight:800;letter-spacing:-.02em}
+h1 span{background:linear-gradient(90deg,#a5b4fc,#5eead4);-webkit-background-clip:text;color:transparent}
+.sub{font-size:15px;color:#a3a9c9;margin:0 0 20px}
+.stage{flex:1;display:flex;align-items:flex-start}
+cron-ai{width:100%;--cai-font:Inter,system-ui,sans-serif}
+cron-ai::part(input){outline:none}
+.foot{display:flex;justify-content:space-between;align-items:flex-end;font-size:12.5px;color:#8d94b8;margin-top:10px}
+.foot b{color:#e8ebf7;font-weight:600}
+.dots span{display:inline-block;margin-right:12px}
+.dots span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#5eead4;margin-right:6px;vertical-align:1px}
+</style></head><body>
+<div class="kick">CronAI · open source</div>
+<h1>Type a schedule.<br><span>Typos welcome.</span></h1>
+<p class="sub">Plain English in, valid cron out. A 75k-param model fixes the words.</p>
+<div class="stage"><cron-ai size="compact" theme="aurora" value="" show="cron" placeholder="Describe a schedule…"></cron-ai></div>
+<div class="foot"><div class="dots"><span>No server</span><span>No API key</span><span>No LLM</span></div><div><b>github.com/abozaralizadeh/cronai</b></div></div>
+<script src="../../widget/dist/cronai-widget.js"></script>
+</body></html>
