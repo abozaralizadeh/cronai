@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CronAI widget test page</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 24px 16px; background: #f3f4f6; color: #111; }
+  main { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin: 0 0 8px; }
+  pre { background: #fff; padding: 8px; border-radius: 6px; font-size: 12px; white-space: pre-wrap; }
+</style>
+<script src="dist/cronai-widget.js"></script>
+</head>
+<body>
+<main>
+  <section><h2>mini</h2><cron-ai id="mini" size="mini" theme="glacier" value="every weekday at 9am"></cron-ai></section>
+  <section><h2>compact</h2><cron-ai id="compact" size="compact" theme="paper" value="every wensday at half past 4 in the afternoon"></cron-ai></section>
+  <section><h2>full</h2><cron-ai id="full" size="full" theme="aurora" value="every 90 minutes"></cron-ai></section>
+  <section><h2>user mode (visitors pick a frequency)</h2>
+    <form id="uf"><cron-ai id="user" mode="user" size="compact" name="freq" timezone="America/New_York" value="every other friday at 5pm"></cron-ai><button>Save</button></form>
+    <pre id="ufout"></pre>
+  </section>
+  <section><h2>custom sections + strings</h2>
+    <cron-ai id="custom" size="full" mode="user" hide="examples,timezone,chips" show="tiles" strings='{"heading":"Ogni quanto?","nextRuns":"Prossime esecuzioni"}' value="every monday at 9am"></cron-ai>
+  </section>
+  <section><h2>CMS user mode, JSON into a hidden field (edit form)</h2>
+    <div data-cronai data-size="mini" data-mode="user" data-theme="forest" data-target="#saved" data-target-value="json"></div>
+    <input id="saved" style="width:100%" value='{"v":1,"text":"every weekday at 7:30am","crons":["30 7 * * 1-5"],"timezone":"Europe/Rome","description":"At 07:30 on weekdays"}'>
+  </section>
+  <section><h2>form</h2>
+    <form id="f"><cron-ai size="mini" name="schedule" value="last friday of every month at 6pm" required></cron-ai><button>Submit</button></form>
+    <pre id="formout"></pre>
+  </section>
+  <section><h2>data-cronai (CMS)</h2><div data-cronai data-size="mini" data-theme="candy" data-value="twice a day on weekends" data-target="#plain"></div><input id="plain" style="width:100%"></section>
+  <section><h2>iframe</h2><iframe id="ifr" src="dist/embed.html?size=compact&theme=terminal&value=every%2015%20minutes%20during%20business%20hours" style="width:100%;border:0;height:300px"></iframe></section>
+  <pre id="log"></pre>
+</main>
+<script>
+  const log = (m) => (document.getElementById('log').textContent += m + '\n');
+  document.addEventListener('cronchange', (e) => log('cronchange ' + e.target.id + ' ' + e.detail.cron));
+  document.getElementById('uf').addEventListener('submit', (e) => { e.preventDefault(); document.getElementById('ufout').textContent = JSON.stringify(Object.fromEntries(new FormData(e.target))); });
+  document.getElementById('f').addEventListener('submit', (e) => { e.preventDefault(); document.getElementById('formout').textContent = JSON.stringify(Object.fromEntries(new FormData(e.target))); });
+  window.addEventListener('message', (e) => { if (e.data && e.data.source === 'cronai') log('iframe ' + e.data.type + ' ' + JSON.stringify(e.data.detail && (e.data.detail.cron || e.data.detail.height))); });
+</script>
+</body>
+</html>

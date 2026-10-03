@@ -1,0 +1,497 @@
+<title>CronAI Widget Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* Layout: controls + snippet on the left, the widget on a "your site" stage on the right; stacks on phones. */
+  :root {
+    --bg: #ECEEF2;
+    --panel: #FFFFFF;
+    --ink: #14171C;
+    --muted: #5B6470;
+    --line: #D6DAE1;
+    --accent: #3451D1;
+    --accent-ink: #FFFFFF;
+    --code-bg: #F4F5F8;
+    --stage: #F7F8FA;
+    --ok: #12805C;
+    --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+    --font-body: "Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1014; --panel: #161920; --ink: #E7EAF0; --muted: #9AA2AE; --line: #292E37;
+      --accent: #8FA2FF; --accent-ink: #0B1030; --code-bg: #0F1217; --stage: #12151B; --ok: #43D19E;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1014; --panel: #161920; --ink: #E7EAF0; --muted: #9AA2AE; --line: #292E37;
+    --accent: #8FA2FF; --accent-ink: #0B1030; --code-bg: #0F1217; --stage: #12151B; --ok: #43D19E;
+    color-scheme: dark;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 56px; display: flex; flex-direction: column; gap: 28px; }
+  header { display: flex; flex-direction: column; gap: 8px; max-width: 70ch; }
+  h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 5vw, 44px); letter-spacing: -0.02em; line-height: 1.05; margin: 0; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .lede { color: var(--muted); font-size: 16px; margin: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--muted); }
+  .facts b { color: var(--ink); font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+  @media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+  .seg button { all: unset; cursor: pointer; text-align: center; padding: 7px 4px; border-radius: 7px; font-weight: 600; font-size: 13.5px; color: var(--muted); }
+  .seg button small { display: block; font-weight: 400; font-size: 11px; }
+  .seg button[aria-pressed="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+  .seg button:focus-visible, .swatch:focus-visible, .tabs button:focus-visible, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+  .swatch { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 5px; border: 1px solid var(--line); border-radius: 99px; font-size: 13px; }
+  .swatch span { width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); flex: none; }
+  .swatch[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+  input[type="text"] { font: inherit; color: var(--ink); background: var(--code-bg); border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; width: 100%; box-sizing: border-box; }
+  input[type="text"]:focus, select:focus, textarea.cfg:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  select, textarea.cfg { font: inherit; color: var(--ink); background: var(--code-bg); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; width: 100%; box-sizing: border-box; }
+  textarea.cfg { font-family: var(--font-mono); font-size: 12.5px; min-height: 84px; resize: vertical; }
+  .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+  .toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+  .toggles button { all: unset; cursor: pointer; font-size: 12.5px; padding: 4px 10px; border-radius: 99px; border: 1px dashed var(--line); color: var(--muted); }
+  .toggles button[aria-pressed="true"] { border-style: solid; border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .toggles button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  details.more summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  details.more[open] summary { margin-bottom: 10px; }
+  .modehint { font-size: 13px; color: var(--muted); margin: 0; }
+  .checks { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13.5px; }
+  .checks label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+
+  .stage { position: relative; border-radius: 14px; border: 1px solid var(--line); min-height: 380px; padding: 28px 20px; display: flex; flex-direction: column; gap: 14px;
+    background-color: var(--stage); background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 18px 18px; min-width: 0; }
+  .stage .bar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .stage .slot { margin: 0 auto; width: 100%; }
+  .slot.mini { max-width: 460px; } .slot.compact { max-width: 420px; } .slot.full { max-width: 560px; }
+  .events { font-family: var(--font-mono); font-size: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 64px; max-height: 120px; overflow: auto; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+  .events b { color: var(--ok); font-weight: 600; }
+
+  .tabs { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .tabs button { all: unset; cursor: pointer; padding: 8px 10px; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+  .codebox { position: relative; }
+  pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 14px; overflow-x: auto; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.6; color: var(--ink); }
+  .btn { all: unset; cursor: pointer; font-weight: 600; font-size: 12.5px; padding: 6px 12px; border-radius: 99px; background: var(--accent); color: var(--accent-ink); }
+  .codebox { display: flex; flex-direction: column; gap: 8px; }
+  .codebox .btn { align-self: flex-end; }
+  .hint { font-size: 13px; color: var(--muted); margin: 0; }
+  .hint code, p code { font-family: var(--font-mono); font-size: 0.92em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; border: 1px solid var(--line); }
+
+  .sizes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: 16px; align-items: start; }
+  @media (max-width: 1000px) { .sizes { grid-template-columns: minmax(0, 1fr); } }
+  .sizes figure { margin: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .sizes figcaption { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .sizes figcaption b { color: var(--ink); font-family: var(--font-display); font-size: 15px; }
+
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  td code { font-family: var(--font-mono); font-size: 12.5px; }
+  .tablewrap { overflow-x: auto; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Cron<em>AI</em> Widget Builder</h1>
+    <p class="lede">A plain-English schedule picker for any website. Use it yourself to get cron lines, or give it to your visitors so they pick how often something happens and your site runs it. The CronLex model works in the browser, so there's no server and no API key.</p>
+    <div class="facts">
+      <span>Full build <b>__FULL_GZ__ KB</b> gzip</span>
+      <span>Lite build <b>__LITE_GZ__ KB</b> gzip (no typo correction)</span>
+      <span>Model <b>CronLex</b>, 75k params</span>
+      <span>Dependencies <b>0</b></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-labelledby="cfg-h">
+      <h2 id="cfg-h">Configure</h2>
+      <div class="field">
+        <span class="lbl" id="mode-l">Who types the schedule?</span>
+        <div class="seg" role="group" aria-labelledby="mode-l" id="modeSeg" style="grid-template-columns:repeat(2,1fr)">
+          <button type="button" data-mode="developer" aria-pressed="true">You, the developer<small>get cron lines</small></button>
+          <button type="button" data-mode="user">Your visitors<small>pick a frequency</small></button>
+        </div>
+        <p class="modehint" id="modeHint"></p>
+      </div>
+      <div class="field">
+        <span class="lbl" id="size-l">Size</span>
+        <div class="seg" role="group" aria-labelledby="size-l" id="sizeSeg">
+          <button type="button" data-size="mini">Mini<small>one line</small></button>
+          <button type="button" data-size="compact" aria-pressed="true">Compact<small>card</small></button>
+          <button type="button" data-size="full">Full<small>everything</small></button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl" id="theme-l">Theme</span>
+        <div class="swatches" role="group" aria-labelledby="theme-l" id="swatches"></div>
+      </div>
+      <div class="field">
+        <span class="lbl" id="sec-l">Show these parts</span>
+        <div class="toggles" role="group" aria-labelledby="sec-l" id="sections"></div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="startText">Starting text</label>
+        <input type="text" id="startText" value="every weekday at 9am">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="heading">Heading</label>
+          <input type="text" id="heading" placeholder="(default)">
+        </div>
+        <div class="field">
+          <label class="lbl" for="placeholder">Placeholder</label>
+          <input type="text" id="placeholder" placeholder="(default)">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label class="lbl" for="tz">Time zone</label>
+          <select id="tz">
+            <option value="">Visitor's own</option>
+            <option>UTC</option><option>Europe/Rome</option><option>Europe/London</option><option>America/New_York</option>
+            <option>America/Los_Angeles</option><option>Asia/Tokyo</option><option>Asia/Kolkata</option><option>Australia/Sydney</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="formValue">Form sends</label>
+          <select id="formValue">
+            <option value="">Cron line(s)</option>
+            <option value="json">Schedule JSON</option>
+            <option value="text">What they typed</option>
+            <option value="description">Description</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="lbl" for="fieldName">Form field name <span style="text-transform:none;letter-spacing:0">(optional; also sends &lt;name&gt;-json)</span></label>
+        <input type="text" id="fieldName" placeholder="schedule">
+      </div>
+      <details class="more">
+        <summary>All texts (translate or re-word)</summary>
+        <div class="field">
+          <label class="lbl" for="strings">JSON, any subset of keys</label>
+          <textarea class="cfg" id="strings" spellcheck="false" placeholder='{"nextRuns": "Prossime esecuzioni"}'></textarea>
+          <p class="hint" id="stringsHint"></p>
+        </div>
+      </details>
+      <div class="field">
+        <label class="lbl" for="scriptUrl">Script URL</label>
+        <input type="text" id="scriptUrl">
+        <p class="hint">Points at jsDelivr for your GitHub repo and works once <code>widget/dist</code> is pushed. Your VM serves it too, at <code>/widget/cronai-widget.js</code>.</p>
+      </div>
+      <div class="checks">
+        <label><input type="checkbox" id="optLite"> Lite build</label>
+        <label><input type="checkbox" id="optH12"> 12-hour clock</label>
+        <label><input type="checkbox" id="optExt" checked> Allow L / # extensions</label>
+        <label><input type="checkbox" id="optArmed"> Fire events on schedule</label>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="Live preview">
+      <div class="bar"><span>Live preview, running the real widget</span><span id="sizeNote"></span></div>
+      <div class="slot compact" id="slot"></div>
+      <div class="lbl" id="outLbl">What your page receives</div>
+      <div class="events" id="events" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="code-h">
+    <h2 id="code-h">Copy the code</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="codebox"><button class="btn" type="button" id="copyBtn">Copy</button><pre id="code"></pre></div>
+    <p class="hint" id="tabHint"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="sizes-h">
+    <h2 id="sizes-h">Sizes, for developers and for visitors</h2>
+    <div class="sizes">
+      <figure><figcaption><b>Mini</b><span>visitor mode, one line</span></figcaption><cron-ai size="mini" mode="user" theme="paper" value="every monday at 8:30"></cron-ai></figure>
+      <figure><figcaption><b>Compact</b><span>developer mode</span></figcaption><cron-ai size="compact" theme="forest" value="evrey wensday at half past 4 in the afternoon"></cron-ai></figure>
+      <figure><figcaption><b>Full</b><span>visitor mode</span></figcaption><cron-ai size="full" mode="user" theme="sunset" value="every two weeks on saturday at 10am" examples="false"></cron-ai></figure>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="api-h">
+    <h2 id="api-h">Reference</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Attribute / API</th><th>Values</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>mode</code></td><td><code>developer</code> · <code>user</code></td><td><code>user</code> is for your visitors: no cron, tiles or crontab lines, friendlier text, 3 upcoming runs.</td></tr>
+          <tr><td><code>size</code></td><td><code>mini</code> · <code>compact</code> · <code>full</code></td><td>Layout.</td></tr>
+          <tr><td><code>show</code>, <code>hide</code></td><td><code>badge title input status chips tiles cron copy guard description confidence notes runs timezone trigger examples</code>, or <code>all</code></td><td>Add or remove parts on top of the mode/size defaults. <code>show="only runs description"</code> starts from nothing.</td></tr>
+          <tr><td><code>strings</code></td><td>JSON</td><td>Re-word or translate any text. Also the <code>el.strings</code> property.</td></tr>
+          <tr><td><code>theme</code></td><td><code>auto</code> · <code>aurora</code> · <code>paper</code> · <code>terminal</code> · <code>sunset</code> · <code>glacier</code> · <code>forest</code> · <code>candy</code></td><td><code>auto</code> follows the visitor's light or dark setting.</td></tr>
+          <tr><td><code>timezone</code></td><td>IANA name or <code>auto</code></td><td>Zone the times are meant in. Saved with the schedule, so your server runs "9am" at the visitor's 9am.</td></tr>
+          <tr><td><code>value</code> / <code>schedule</code></td><td>text / saved JSON</td><td>Starting text, or restore a saved choice (text, zone and every-N-weeks) in edit forms. Both are also properties.</td></tr>
+          <tr><td><code>name</code>, <code>form-value</code>, <code>required</code></td><td><code>cron</code> · <code>json</code> · <code>text</code> · <code>description</code></td><td>Works in a <code>&lt;form&gt;</code>; also sends <code>&lt;name&gt;-json</code> with the full schedule.</td></tr>
+          <tr><td><code>armed</code>, <code>arm()</code>, <code>disarm()</code></td><td>flag</td><td>Fires <code>crontrigger</code> on schedule while the page is open, in any size, even with the trigger part hidden.</td></tr>
+          <tr><td><code>cronchange</code> event</td><td><code>detail.schedule</code>, <code>cron</code>, <code>crons</code>, <code>description</code>, <code>nextRuns</code>, <code>timezone</code>, <code>ok</code></td><td>Fires on every new interpretation, and once on load.</td></tr>
+          <tr><td><code>CronAI.createTrigger(schedule, fn)</code></td><td>browser / Node</td><td>Run your code at the times a visitor picked. Node: <code>cronai-engine.esm.js</code>.</td></tr>
+          <tr><td><code>CronAI.parse(text, {timezone})</code>, <code>scheduleNextRuns(schedule, n)</code></td><td>JS</td><td>Engine without UI.</td></tr>
+          <tr><td>CSS variables, <code>::part()</code></td><td><code>--cai-accent</code>, <code>--cai-surface</code>, <code>--cai-text</code>, <code>--cai-font</code>, <code>--cai-rad-xl</code>, … · parts named like the sections</td><td><code>cron-ai { --cai-accent: #e11d48 }</code>, <code>cron-ai::part(description) { font-size: 20px }</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>__WIDGET_JS__</script>
+<script>
+(function () {
+  var THEMES = [
+    ['auto', 'Auto', 'linear-gradient(135deg,#EAF1F8 50%,#070B1A 50%)'],
+    ['aurora', 'Aurora', 'linear-gradient(135deg,#8B9BFF 50%,#070B1A 50%)'],
+    ['paper', 'Paper', 'linear-gradient(135deg,#C2410C 50%,#F4F0E8 50%)'],
+    ['terminal', 'Terminal', 'linear-gradient(135deg,#39FF88 50%,#000 50%)'],
+    ['sunset', 'Sunset', 'linear-gradient(135deg,#FF7A59 50%,#170C12 50%)'],
+    ['glacier', 'Glacier', 'linear-gradient(135deg,#2563EB 50%,#EAF1F8 50%)'],
+    ['forest', 'Forest', 'linear-gradient(135deg,#86D99A 50%,#0B120F 50%)'],
+    ['candy', 'Candy', 'linear-gradient(135deg,#E2459B 50%,#FFF1F8 50%)']
+  ];
+  var SECTIONS = CronAI.sections.filter(function (s) { return s !== 'themes'; });
+  var DEFAULT_URL = 'https://cdn.jsdelivr.net/gh/abozaralizadeh/cronai@main/widget/dist/';
+  var state = { mode: 'developer', size: 'compact', theme: 'auto', text: 'every weekday at 9am', name: '', lite: false, h12: false, ext: true,
+    armed: false, tab: 'html', url: '', heading: '', placeholder: '', tz: '', formValue: '', strings: '', sections: null };
+  try { var saved = JSON.parse(localStorage.getItem('cronai-builder-v2') || 'null'); if (saved) for (var k in saved) if (k in state) state[k] = saved[k]; } catch (e) {}
+
+  var $ = function (id) { return document.getElementById(id); };
+  var slot = $('slot'), events = $('events');
+
+  function defaults() { return Array.from(CronAI.resolveSections(state.mode, state.size)).filter(function (s) { return s !== 'themes'; }); }
+  function current() { return state.sections || defaults(); }
+  function showHide() {
+    var d = defaults(), c = current();
+    return { show: c.filter(function (s) { return d.indexOf(s) < 0; }), hide: d.filter(function (s) { return c.indexOf(s) < 0; }) };
+  }
+
+  // ---- controls
+  THEMES.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'swatch'; b.dataset.theme = t[0];
+    var dot = document.createElement('span'); dot.style.background = t[2];
+    b.append(dot, document.createTextNode(t[1]));
+    b.addEventListener('click', function () { state.theme = t[0]; update(true); });
+    $('swatches').append(b);
+  });
+  SECTIONS.forEach(function (s) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.dataset.section = s; b.textContent = s;
+    b.addEventListener('click', function () {
+      var c = current().slice(), i = c.indexOf(s);
+      if (i >= 0) c.splice(i, 1); else c.push(s);
+      state.sections = c; update(true);
+    });
+    $('sections').append(b);
+  });
+  document.querySelectorAll('#sizeSeg button').forEach(function (b) {
+    b.addEventListener('click', function () { state.size = b.dataset.size; state.sections = null; update(true); });
+  });
+  document.querySelectorAll('#modeSeg button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.mode = b.dataset.mode; state.sections = null;
+      if (state.mode === 'user' && !state.formValue) { state.formValue = 'json'; $('formValue').value = 'json'; }
+      if (state.mode === 'developer' && state.formValue === 'json') { state.formValue = ''; $('formValue').value = ''; }
+      update(true);
+    });
+  });
+  var bind = function (id, key, remount, clean) {
+    $(id).value = state[key];
+    $(id).addEventListener('input', function (e) { state[key] = clean ? clean(e.target.value) : e.target.value; update(remount); });
+  };
+  bind('startText', 'text', true);
+  bind('heading', 'heading', true);
+  bind('placeholder', 'placeholder', true);
+  bind('fieldName', 'name', false, function (v) { return v.replace(/[^\w-]/g, ''); });
+  bind('strings', 'strings', true);
+  $('tz').value = state.tz; $('tz').addEventListener('change', function (e) { state.tz = e.target.value; update(true); });
+  $('formValue').value = state.formValue; $('formValue').addEventListener('change', function (e) { state.formValue = e.target.value; update(false); });
+  $('optLite').checked = state.lite; $('optH12').checked = state.h12; $('optExt').checked = state.ext; $('optArmed').checked = state.armed;
+  $('scriptUrl').value = state.url || DEFAULT_URL + 'cronai-widget.js';
+  $('scriptUrl').addEventListener('input', function (e) { state.url = e.target.value; update(false); });
+  $('optLite').addEventListener('change', function (e) {
+    state.lite = e.target.checked;
+    var u = $('scriptUrl').value;
+    $('scriptUrl').value = state.lite ? u.replace(/cronai-widget\.js$/, 'cronai-widget.lite.js') : u.replace(/cronai-widget\.lite\.js$/, 'cronai-widget.js');
+    state.url = $('scriptUrl').value; update(false);
+  });
+  $('optH12').addEventListener('change', function (e) { state.h12 = e.target.checked; update(true); });
+  $('optExt').addEventListener('change', function (e) { state.ext = e.target.checked; update(true); });
+  $('optArmed').addEventListener('change', function (e) { state.armed = e.target.checked; update(true); });
+  $('stringsHint').textContent = 'Keys: ' + Object.keys(CronAI.strings).join(', ');
+
+  var TABS = [
+    ['html', 'HTML', 'Paste the script once per page, then place the tag anywhere.'],
+    ['save', 'Save visitor choice', 'Visitors pick a frequency; you store the schedule JSON per user (form post or fetch).'],
+    ['run', 'Run it', 'Run the saved choices: in the browser while the page is open, or on your Node server for every user.'],
+    ['cms', 'WordPress / CMS', 'For editors that strip unknown tags. A saved JSON in the target field restores the widget in edit forms.'],
+    ['iframe', 'iframe', 'For site builders that block scripts. The frame posts change / resize / trigger messages and accepts set / arm.'],
+    ['js', 'JavaScript', 'Mount from code with every option.'],
+    ['react', 'React / Vue', 'A standard custom element: frameworks render it like any HTML tag.'],
+    ['css', 'Styling', 'CSS variables and ::part() selectors, from your own stylesheet.']
+  ];
+  TABS.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.tab = t[0]; b.textContent = t[1];
+    b.addEventListener('click', function () { state.tab = t[0]; update(false); });
+    $('tabs').append(b);
+  });
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+  function stringsObj() {
+    var o = {};
+    try { if (state.strings.trim()) o = JSON.parse(state.strings); } catch (e) { o = null; }
+    if (o === null) return null;
+    return o;
+  }
+  function attrList() {
+    var a = [['size', state.size]];
+    if (state.mode === 'user') a.push(['mode', 'user']);
+    a.push(['theme', state.theme]);
+    if (state.text) a.push(['value', state.text]);
+    var sh = showHide();
+    if (sh.show.length) a.push(['show', sh.show.join(',')]);
+    if (sh.hide.length) a.push(['hide', sh.hide.join(',')]);
+    if (state.heading) a.push(['heading', state.heading]);
+    if (state.placeholder) a.push(['placeholder', state.placeholder]);
+    if (state.tz) a.push(['timezone', state.tz]);
+    if (state.name) a.push(['name', state.name]);
+    if (state.name && state.formValue) a.push(['form-value', state.formValue]);
+    if (state.h12) a.push(['hour12', true]);
+    if (!state.ext) a.push(['extensions', 'false']);
+    if (state.armed) a.push(['armed', true]);
+    return a;
+  }
+  function attrs(indent) {
+    var parts = attrList().map(function (p) { return p[1] === true ? p[0] : p[0] + '="' + esc(p[1]) + '"'; });
+    var so = stringsObj();
+    if (so && Object.keys(so).length) parts.push("strings='" + JSON.stringify(so).replace(/'/g, '&#39;') + "'");
+    return parts.length > 4 ? '\n' + indent + parts.join('\n' + indent) + '\n' : ' ' + parts.join(' ');
+  }
+  function scriptUrl() { return $('scriptUrl').value.trim() || DEFAULT_URL + 'cronai-widget.js'; }
+  function snippet() {
+    var src = '<script src="' + esc(scriptUrl()) + '" defer><\/script>';
+    var base = scriptUrl().replace(/[^/]*$/, '');
+    var nm = state.name || 'schedule';
+    switch (state.tab) {
+      case 'html': return src + '\n\n<cron-ai' + attrs('  ') + '></cron-ai>';
+      case 'save':
+        return '<!-- 1. a normal form: the widget submits like an input -->\n' + src + '\n\n<form method="post" action="/settings/reminder">\n  <cron-ai mode="user" size="' + state.size + '" name="' + nm + '" form-value="json" required></cron-ai>\n  <button>Save</button>\n</form>\n\n' +
+          '<!-- the server receives ' + nm + ' = {"v":1,"text":"every other friday at 5pm","crons":["0 17 * * 5"],\n     "timezone":"Europe/Rome","description":"…","everyWeeks":2,"anchor":1791140400} -->\n\n' +
+          '<!-- 2. or save with fetch -->\n<script>\n  document.querySelector("cron-ai").addEventListener("cronchange", (e) => {\n    if (!e.detail.ok) return;\n    fetch("/api/me/schedule", { method: "PUT", headers: { "content-type": "application/json" },\n      body: JSON.stringify(e.detail.schedule) });\n  });\n<\/script>\n\n<!-- 3. edit form: show what they saved before -->\n<cron-ai mode="user" schedule=\'{{ user.schedule_json }}\'></cron-ai>';
+      case 'run':
+        return '// In the browser (runs while the page is open)\nconst t = CronAI.createTrigger(savedSchedule, ({ date, count, late }) => {\n  showReminder();               // your code\n});\nt.next();   // Date of the next run\nt.stop();\n\n' +
+          '// On your server (Node 18+): run every user\'s choice in their own time zone\nimport { createTrigger, scheduleNextRuns } from "./cronai-engine.esm.js"; // from widget/dist\n\nfor (const user of await db.users.withSchedule()) {\n  createTrigger(user.schedule, () => sendReminder(user.id));\n}\n\n' +
+          '// Prefer your own job runner? Ask for the next run and enqueue it:\nconst [next] = scheduleNextRuns(user.schedule, 1);   // { date, cron }\nqueue.add("reminder", { userId: user.id }, { delay: next.date - Date.now() });';
+      case 'cms':
+        return src + '\n\n<div data-cronai data-size="' + state.size + '"' + (state.mode === 'user' ? ' data-mode="user"' : '') + ' data-theme="' + state.theme + '"' +
+          (state.tz ? ' data-timezone="' + esc(state.tz) + '"' : '') + (state.h12 ? ' data-hour12' : '') +
+          '\n     data-target="#cron-field" data-target-value="' + (state.formValue || (state.mode === 'user' ? 'json' : 'cron')) + '"></div>\n<input type="hidden" id="cron-field" name="' + nm + '" value="">';
+      case 'iframe':
+        var sh = showHide();
+        var q = 'size=' + state.size + (state.mode === 'user' ? '&mode=user' : '') + '&theme=' + state.theme + (state.text ? '&value=' + encodeURIComponent(state.text) : '') +
+          (sh.show.length ? '&show=' + sh.show.join(',') : '') + (sh.hide.length ? '&hide=' + sh.hide.join(',') : '') + (state.tz ? '&timezone=' + encodeURIComponent(state.tz) : '') +
+          (state.h12 ? '&hour12' : '') + (state.ext ? '' : '&extensions=false') + (state.armed ? '&armed' : '');
+        var hgt = state.size === 'mini' ? 90 : state.size === 'compact' ? 380 : 820;
+        return '<iframe id="cronai" src="' + esc(base + 'embed.html?' + q) + '"\n        style="width:100%;border:0;height:' + hgt + 'px" title="Schedule"></iframe>\n\n' +
+          '<script>\n  const frame = document.getElementById("cronai");\n  window.addEventListener("message", (e) => {\n    if (e.data?.source !== "cronai") return;\n    if (e.data.type === "change") save(e.data.detail.schedule);\n    if (e.data.type === "resize") frame.style.height = e.data.detail.height + "px";\n    if (e.data.type === "trigger") doTheThing();\n  });\n  // drive it: frame.contentWindow.postMessage({ source: "cronai-parent", type: "set", schedule }, "*")\n<\/script>';
+      case 'js':
+        var o = { size: state.size };
+        if (state.mode === 'user') o.mode = 'user';
+        o.theme = state.theme;
+        if (state.text) o.value = state.text;
+        var s2 = showHide();
+        if (s2.show.length) o.show = s2.show;
+        if (s2.hide.length) o.hide = s2.hide;
+        if (state.tz) o.timezone = state.tz;
+        if (state.name) o.name = state.name;
+        var so = stringsObj();
+        if (state.heading || state.placeholder || (so && Object.keys(so).length)) {
+          o.strings = Object.assign({}, so || {});
+          if (state.heading) o.strings.heading = state.heading;
+          if (state.placeholder) o.strings.placeholder = state.placeholder;
+        }
+        if (state.armed) o.armed = true;
+        var js = JSON.stringify(o, null, 2).replace(/\n}$/, ',\n  onChange: (d) => d.ok && save(d.schedule)' + (state.armed ? ',\n  onTrigger: (d) => doTheThing(d.date)' : '') + '\n}');
+        return src + '\n<div id="schedule"></div>\n\n<script>\n  window.addEventListener("DOMContentLoaded", () => {\n    const el = CronAI.mount("#schedule", ' + js.replace(/\n/g, '\n    ') + ');\n    // el.value, el.schedule, el.nextRuns, el.arm(), el.strings = {...}\n  });\n<\/script>';
+      case 'react':
+        return '// index.html:  ' + src + '\n\nexport function FrequencyPicker({ onSchedule }) {\n  const ref = React.useRef(null);\n  React.useEffect(() => {\n    const el = ref.current;\n    const fn = (e) => e.detail.ok && onSchedule(e.detail.schedule);\n    el.addEventListener("cronchange", fn);\n    return () => el.removeEventListener("cronchange", fn);\n  }, [onSchedule]);\n  return <cron-ai ref={ref}' + attrs('    ') + '/>;\n}\n\n// Vue: <cron-ai mode="user" @cronchange="e => schedule = e.detail.schedule" />\n// React Native: <CronTrigger mode="user" onScheduleChange={save} /> from this repo';
+      default:
+        return '/* from your own stylesheet */\ncron-ai {\n  --cai-accent: #e11d48;\n  --cai-font: inherit;            /* use your site font */\n  --cai-rad-xl: 8px;              /* squarer card */\n  --cai-surface: #ffffff;\n}\ncron-ai::part(card)        { box-shadow: none; }\ncron-ai::part(description) { font-size: 18px; }\ncron-ai::part(runs)        { opacity: .8; }\n\n/* parts: card input status chips tiles cron copy guard description\n          confidence notes runs timezone trigger examples title badge */';
+    }
+  }
+
+  // ---- preview
+  var el = null;
+  function mountPreview() {
+    slot.replaceChildren();
+    slot.className = 'slot ' + state.size;
+    el = document.createElement('cron-ai');
+    attrList().forEach(function (p) { if (p[0] !== 'name') el.setAttribute(p[0], p[1] === true ? '' : p[1]); });
+    var so = stringsObj();
+    if (so) el.setAttribute('strings', JSON.stringify(so));
+    events.replaceChildren();
+    el.addEventListener('cronchange', function (e) {
+      var d = e.detail;
+      if (state.mode === 'user') log('schedule', d.ok ? JSON.stringify(d.schedule) : 'null (not understood)');
+      else log('cronchange', d.ok ? d.crons.join(' | ') : 'not understood');
+    });
+    el.addEventListener('crontrigger', function (e) { log('crontrigger', e.detail.cron + ' @ ' + e.detail.date.toLocaleTimeString()); });
+    slot.append(el);
+  }
+  function log(type, msg) {
+    var line = document.createElement('div');
+    var b = document.createElement('b'); b.textContent = type;
+    line.append(b, document.createTextNode('  ' + msg));
+    events.prepend(line);
+    while (events.childNodes.length > 30) events.lastChild.remove();
+  }
+
+  var pending;
+  function update(remount) {
+    document.querySelectorAll('#modeSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)); });
+    document.querySelectorAll('#sizeSeg button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.size === state.size)); });
+    document.querySelectorAll('.swatch').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.theme === state.theme)); });
+    var cur = current();
+    document.querySelectorAll('#sections button').forEach(function (b) { b.setAttribute('aria-pressed', String(cur.indexOf(b.dataset.section) >= 0)); });
+    document.querySelectorAll('#tabs button').forEach(function (b) { b.setAttribute('aria-selected', String(b.dataset.tab === state.tab)); });
+    $('modeHint').textContent = state.mode === 'user'
+      ? 'Visitors type how often; they never see cron. You receive a schedule JSON (with their time zone) to store and run.'
+      : 'You type a schedule and copy the cron line, crontab guard or schedule JSON.';
+    $('outLbl').textContent = state.mode === 'user' ? 'What your page receives (detail.schedule)' : 'Events';
+    $('strings').style.borderColor = stringsObj() === null ? 'var(--accent)' : '';
+    $('code').textContent = snippet();
+    $('tabHint').textContent = TABS.filter(function (t) { return t[0] === state.tab; })[0][2] + (state.lite ? ' Lite build: about a quarter of the size, exact words only (no typo correction).' : '');
+    $('sizeNote').textContent = state.size === 'mini' ? 'max-width ~460px' : state.size === 'compact' ? 'max-width ~420px' : 'max-width ~560px';
+    if (remount) { clearTimeout(pending); pending = setTimeout(mountPreview, 150); }
+    try { localStorage.setItem('cronai-builder-v2', JSON.stringify(state)); } catch (e) {}
+  }
+
+  $('copyBtn').addEventListener('click', function () {
+    var txt = $('code').textContent, btn = this;
+    function done(label) { btn.textContent = label; setTimeout(function () { btn.textContent = 'Copy'; }, 1400); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { done('Copied'); }, function () { selectCode(); done('Press ⌘C'); });
+    } else { selectCode(); done('Press ⌘C'); }
+  });
+  function selectCode() { var r = document.createRange(); r.selectNodeContents($('code')); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+
+  mountPreview();
+  update(false);
+})();
+</script>

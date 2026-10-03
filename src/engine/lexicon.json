@@ -1,0 +1,513 @@
+{
+ "words": {
+  "sunday": [
+   "sunday",
+   "sundays",
+   "sun"
+  ],
+  "monday": [
+   "monday",
+   "mondays",
+   "mon"
+  ],
+  "tuesday": [
+   "tuesday",
+   "tuesdays",
+   "tue",
+   "tues"
+  ],
+  "wednesday": [
+   "wednesday",
+   "wednesdays",
+   "wed",
+   "weds"
+  ],
+  "thursday": [
+   "thursday",
+   "thursdays",
+   "thu",
+   "thur",
+   "thurs"
+  ],
+  "friday": [
+   "friday",
+   "fridays",
+   "fri"
+  ],
+  "saturday": [
+   "saturday",
+   "saturdays",
+   "sat"
+  ],
+  "january": [
+   "january",
+   "jan"
+  ],
+  "february": [
+   "february",
+   "feb"
+  ],
+  "march": [
+   "march",
+   "mar"
+  ],
+  "april": [
+   "april",
+   "apr"
+  ],
+  "may": [
+   "may"
+  ],
+  "june": [
+   "june",
+   "jun"
+  ],
+  "july": [
+   "july",
+   "jul"
+  ],
+  "august": [
+   "august",
+   "aug"
+  ],
+  "september": [
+   "september",
+   "sep",
+   "sept"
+  ],
+  "october": [
+   "october",
+   "oct"
+  ],
+  "november": [
+   "november",
+   "nov"
+  ],
+  "december": [
+   "december",
+   "dec"
+  ],
+  "second": [
+   "second",
+   "seconds",
+   "sec",
+   "secs"
+  ],
+  "minute": [
+   "minute",
+   "minutes",
+   "min",
+   "mins"
+  ],
+  "hour": [
+   "hour",
+   "hours",
+   "hr",
+   "hrs"
+  ],
+  "day": [
+   "day",
+   "days"
+  ],
+  "week": [
+   "week",
+   "weeks",
+   "wk",
+   "wks"
+  ],
+  "month": [
+   "month",
+   "months",
+   "mth",
+   "mths"
+  ],
+  "year": [
+   "year",
+   "years",
+   "yr",
+   "yrs"
+  ],
+  "minutely": [
+   "minutely"
+  ],
+  "hourly": [
+   "hourly"
+  ],
+  "daily": [
+   "daily"
+  ],
+  "weekly": [
+   "weekly"
+  ],
+  "monthly": [
+   "monthly"
+  ],
+  "quarterly": [
+   "quarterly"
+  ],
+  "yearly": [
+   "yearly",
+   "annually",
+   "annual"
+  ],
+  "weekday": [
+   "weekday",
+   "weekdays",
+   "workday",
+   "workdays"
+  ],
+  "weekend": [
+   "weekend",
+   "weekends"
+  ],
+  "business": [
+   "business",
+   "working",
+   "office",
+   "work"
+  ],
+  "morning": [
+   "morning",
+   "mornings"
+  ],
+  "noon": [
+   "noon",
+   "midday",
+   "lunchtime",
+   "lunch"
+  ],
+  "afternoon": [
+   "afternoon",
+   "afternoons"
+  ],
+  "evening": [
+   "evening",
+   "evenings"
+  ],
+  "night": [
+   "night",
+   "nights",
+   "tonight"
+  ],
+  "midnight": [
+   "midnight"
+  ],
+  "spring": [
+   "spring"
+  ],
+  "summer": [
+   "summer"
+  ],
+  "autumn": [
+   "autumn",
+   "fall"
+  ],
+  "winter": [
+   "winter"
+  ],
+  "christmas": [
+   "christmas",
+   "xmas"
+  ],
+  "halloween": [
+   "halloween"
+  ],
+  "valentine": [
+   "valentine",
+   "valentines"
+  ],
+  "new": [
+   "new"
+  ],
+  "every": [
+   "every",
+   "each",
+   "evry"
+  ],
+  "other": [
+   "other",
+   "alternate",
+   "alternating"
+  ],
+  "at": [
+   "at",
+   "@"
+  ],
+  "on": [
+   "on"
+  ],
+  "in": [
+   "in",
+   "during",
+   "within"
+  ],
+  "of": [
+   "of"
+  ],
+  "from": [
+   "from"
+  ],
+  "to": [
+   "to"
+  ],
+  "until": [
+   "until",
+   "till",
+   "til",
+   "untill"
+  ],
+  "through": [
+   "through",
+   "thru",
+   "throughout"
+  ],
+  "between": [
+   "between"
+  ],
+  "and": [
+   "and",
+   "&",
+   "plus"
+  ],
+  "except": [
+   "except",
+   "excluding",
+   "exclude",
+   "but",
+   "besides",
+   "without",
+   "skip",
+   "skipping",
+   "not"
+  ],
+  "past": [
+   "past",
+   "after"
+  ],
+  "half": [
+   "half"
+  ],
+  "quarter": [
+   "quarter",
+   "quarters"
+  ],
+  "last": [
+   "last",
+   "final"
+  ],
+  "end": [
+   "end"
+  ],
+  "start": [
+   "start",
+   "starting",
+   "beginning",
+   "begin",
+   "beginnings"
+  ],
+  "once": [
+   "once"
+  ],
+  "twice": [
+   "twice"
+  ],
+  "thrice": [
+   "thrice"
+  ],
+  "times": [
+   "times",
+   "time"
+  ],
+  "a": [
+   "a",
+   "an",
+   "per"
+  ],
+  "oclock": [
+   "oclock",
+   "o'clock"
+  ],
+  "am": [
+   "am"
+  ],
+  "pm": [
+   "pm"
+  ],
+  "or": [
+   "or"
+  ]
+ },
+ "expansions": {
+  "everyday": [
+   "every",
+   "day"
+  ],
+  "nightly": [
+   "every",
+   "night"
+  ],
+  "fortnightly": [
+   "every",
+   "2",
+   "week"
+  ],
+  "fortnight": [
+   "2",
+   "week"
+  ],
+  "biweekly": [
+   "every",
+   "2",
+   "week"
+  ],
+  "bimonthly": [
+   "every",
+   "2",
+   "month"
+  ],
+  "semiannually": [
+   "every",
+   "6",
+   "month"
+  ],
+  "biannually": [
+   "every",
+   "6",
+   "month"
+  ],
+  "semiannual": [
+   "every",
+   "6",
+   "month"
+  ],
+  "weeknights": [
+   "weekday",
+   "night"
+  ],
+  "weeknight": [
+   "weekday",
+   "night"
+  ]
+ },
+ "numbers": {
+  "zero": 0,
+  "one": 1,
+  "two": 2,
+  "three": 3,
+  "four": 4,
+  "five": 5,
+  "six": 6,
+  "seven": 7,
+  "eight": 8,
+  "nine": 9,
+  "ten": 10,
+  "eleven": 11,
+  "twelve": 12,
+  "thirteen": 13,
+  "fourteen": 14,
+  "fifteen": 15,
+  "sixteen": 16,
+  "seventeen": 17,
+  "eighteen": 18,
+  "nineteen": 19,
+  "twenty": 20,
+  "thirty": 30,
+  "forty": 40,
+  "fifty": 50,
+  "sixty": 60,
+  "couple": 2,
+  "few": 3
+ },
+ "ordinals": {
+  "first": 1,
+  "third": 3,
+  "fourth": 4,
+  "fifth": 5,
+  "sixth": 6,
+  "seventh": 7,
+  "eighth": 8,
+  "ninth": 9,
+  "tenth": 10,
+  "eleventh": 11,
+  "twelfth": 12,
+  "thirteenth": 13,
+  "fourteenth": 14,
+  "fifteenth": 15,
+  "sixteenth": 16,
+  "seventeenth": 17,
+  "eighteenth": 18,
+  "nineteenth": 19,
+  "twentieth": 20,
+  "thirtieth": 30
+ },
+ "stopwords": [
+  "the",
+  "please",
+  "run",
+  "runs",
+  "running",
+  "execute",
+  "trigger",
+  "fire",
+  "do",
+  "it",
+  "this",
+  "that",
+  "job",
+  "task",
+  "cron",
+  "schedule",
+  "scheduled",
+  "me",
+  "my",
+  "our",
+  "us",
+  "you",
+  "your",
+  "should",
+  "must",
+  "will",
+  "would",
+  "can",
+  "could",
+  "be",
+  "is",
+  "are",
+  "was",
+  "then",
+  "also",
+  "just",
+  "only",
+  "around",
+  "about",
+  "roughly",
+  "approximately",
+  "exactly",
+  "sharp",
+  "precisely",
+  "o",
+  "clock",
+  "for",
+  "with",
+  "by",
+  "so",
+  "make",
+  "sure",
+  "want",
+  "need",
+  "like",
+  "i",
+  "we",
+  "remind",
+  "send",
+  "check",
+  "backup",
+  "back",
+  "up",
+  "report",
+  "sync",
+  "email",
+  "ping",
+  "go"
+ ]
+}

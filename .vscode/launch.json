@@ -1,0 +1,104 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: API + web demo server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "program": "${workspaceFolder}/server/index.ts",
+      "env": {
+        "PORT": "8080",
+        "LOG_DIR": "${workspaceFolder}/logs"
+      },
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "preLaunchTask": "build web demo"
+    },
+    {
+      "name": "Engine: run tests",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "runtimeArgs": [
+        "--test"
+      ],
+      "program": "${workspaceFolder}/tests/engine.test.ts",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Engine: try a sentence",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/tsx",
+      "program": "${workspaceFolder}/scripts/try.ts",
+      "args": [
+        "${input:sentence}"
+      ],
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Frontend: Expo (web) dev server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start --web --port 8081",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Frontend: debug in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8081",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true
+    },
+    {
+      "name": "Widget: debug test page in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/widget/demo.html",
+      "preLaunchTask": "build widget"
+    },
+    {
+      "name": "Widget: open embed builder in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "file": "${workspaceFolder}/widget/dist/builder.html",
+      "preLaunchTask": "build widget"
+    },
+    {
+      "name": "Frontend: Expo (iOS/Android, Metro)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npx expo start",
+      "cwd": "${workspaceFolder}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full stack: server + Expo web + Chrome",
+      "configurations": [
+        "Backend: API + web demo server",
+        "Frontend: Expo (web) dev server",
+        "Frontend: debug in Chrome"
+      ],
+      "stopAll": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sentence",
+      "type": "promptString",
+      "description": "Schedule in plain English",
+      "default": "every wensday at half past 4 in the afternoon"
+    }
+  ]
+}

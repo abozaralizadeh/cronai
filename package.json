@@ -1,0 +1,38 @@
+{
+  "name": "cronai",
+  "version": "1.0.0",
+  "description": "Beautiful, themeable React Native cron trigger component that converts natural language schedules to cron with a tiny on-device AI model. Zero native dependencies.",
+  "main": "index.ts",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "train": "python3 training/train_model.py",
+    "build:demo": "node scripts/build-web-demo.mjs",
+    "server": "tsx server/index.ts",
+    "eval": "tsx scripts/eval.ts",
+    "build:widget": "node scripts/build-widget.mjs",
+    "test:widget": "python3 scripts/test_widget.py",
+    "build": "npm run build:demo && npm run build:widget"
+  },
+  "dependencies": {
+    "expo": "~57.0.26",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-web": "~0.21.0",
+    "@expo/metro-runtime": "~57.0.16"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.18",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3"
+  }
+}
