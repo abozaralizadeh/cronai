@@ -76,6 +76,17 @@ export const USER_EXAMPLES = ['every morning', 'every weekday at 9am', 'every mo
 
 const DOW3 = DAY_LABELS.map((d) => d.slice(0, 3));
 const MON3 = MONTH_LABELS.map((m) => m.slice(0, 3));
+/** Used by the time-zone picker when the browser can't list its zones. */
+const FALLBACK_ZONES = [
+  'UTC', 'Europe/London', 'Europe/Dublin', 'Europe/Lisbon', 'Europe/Paris', 'Europe/Berlin', 'Europe/Madrid', 'Europe/Rome',
+  'Europe/Amsterdam', 'Europe/Zurich', 'Europe/Stockholm', 'Europe/Warsaw', 'Europe/Athens', 'Europe/Istanbul', 'Europe/Kyiv',
+  'Europe/Moscow', 'Africa/Cairo', 'Africa/Lagos', 'Africa/Johannesburg', 'Africa/Nairobi', 'Asia/Dubai', 'Asia/Tehran',
+  'Asia/Karachi', 'Asia/Kolkata', 'Asia/Dhaka', 'Asia/Bangkok', 'Asia/Jakarta', 'Asia/Singapore', 'Asia/Shanghai',
+  'Asia/Hong_Kong', 'Asia/Seoul', 'Asia/Tokyo', 'Australia/Perth', 'Australia/Sydney', 'Pacific/Auckland',
+  'America/Sao_Paulo', 'America/Argentina/Buenos_Aires', 'America/Mexico_City', 'America/Bogota', 'America/Toronto',
+  'America/New_York', 'America/Chicago', 'America/Denver', 'America/Phoenix', 'America/Los_Angeles', 'America/Anchorage',
+  'Pacific/Honolulu',
+];
 
 type Attrs = Record<string, string | boolean | undefined | ((e: Event) => void)>;
 function h<K extends keyof HTMLElementTagNameMap>(tag: K, attrs: Attrs = {}, ...kids: (Node | string | null | false | undefined)[]): HTMLElementTagNameMap[K] {
@@ -125,7 +136,7 @@ export class CronAIElement extends Base {
   static get observedAttributes() {
     return [
       'value', 'size', 'mode', 'theme', 'show', 'hide', 'strings', 'timezone', 'schedule', 'placeholder', 'heading',
-      'hour12', 'extensions', 'examples', 'armed', 'next-count', 'disabled', 'required', 'anchor', 'form-value',
+      'hour12', 'extensions', 'examples', 'armed', 'next-count', 'disabled', 'required', 'must-understand', 'anchor', 'form-value',
     ];
   }
 
@@ -152,7 +163,8 @@ export class CronAIElement extends Base {
 
   constructor() {
     super();
-    this.root = this.attachShadow({ mode: 'open' });
+    // delegatesFocus: label clicks, el.focus() and clicks on the card land in the text box
+    this.root = this.attachShadow({ mode: 'open', delegatesFocus: true });
     try {
       this.internals = (this as unknown as { attachInternals(): ElementInternals }).attachInternals();
     } catch {
@@ -238,11 +250,36 @@ export class CronAIElement extends Base {
   disarm() {
     this.setArmed(false);
   }
-  override focus() {
-    (this.refs.input as HTMLInputElement | undefined)?.focus();
+  override focus(options?: FocusOptions) {
+    const input = this.refs.input as HTMLInputElement | undefined;
+    if (input && !input.hidden && !input.disabled) input.focus(options);
+    else super.focus(options);
   }
+
+  /** A click on a non-interactive part of the card (padding, labels, chips) focuses the text box. */
+  private onCardClick = (e: MouseEvent) => {
+    for (const n of e.composedPath()) {
+      if (n === this.card) break;
+      if (n instanceof Element && n.matches('button, a, input, textarea, select, label, summary, [tabindex], code, .expr, .guard')) return;
+    }
+    const sel = (this.root as ShadowRoot & { getSelection?: () => Selection | null }).getSelection?.() ?? document.getSelection();
+    if (sel && !sel.isCollapsed && sel.toString()) return; // the visitor is selecting text
+    this.focus({ preventScroll: true });
+  };
   checkValidity() {
     return this.internals?.checkValidity() ?? true;
+  }
+  get validity(): ValidityState | undefined {
+    return this.internals?.validity;
+  }
+  get validationMessage(): string {
+    return this.internals?.validationMessage ?? '';
+  }
+  get willValidate(): boolean {
+    return this.internals?.willValidate ?? false;
+  }
+  get form(): HTMLFormElement | null {
+    return this.internals?.form ?? null;
   }
   reportValidity() {
     return this.internals?.reportValidity() ?? true;
@@ -311,8 +348,11 @@ export class CronAIElement extends Base {
         break;
       case 'disabled':
         if (this.refs.input) (this.refs.input as HTMLInputElement).disabled = val !== null;
+        if (this.refs.zoneSel) (this.refs.zoneSel as HTMLSelectElement).disabled = val !== null;
         break;
       case 'form-value':
+      case 'required':
+      case 'must-understand':
         this.syncForm();
         break;
       default:
@@ -413,8 +453,12 @@ export class CronAIElement extends Base {
 
   /**
    * Form value. `name` gets form-value="cron" (default: cron line(s)), "json" (the
-   * SavedSchedule), "text" (what was typed) or "description"; `<name>-json` always
-   * carries the full SavedSchedule so your server has everything.
+   * SavedSchedule), "text" (what was typed) or "description". With a `name`, the form
+   * also always gets `<name>-text` (what was typed, even when empty or not understood)
+   * and, when understood, `<name>-json` (the full SavedSchedule).
+   *
+   * Validation: `required` = must be filled in AND understood. `must-understand` =
+   * may stay empty, but if something is typed it has to be understood.
    */
   private syncForm() {
     if (!this.internals) return;
@@ -423,18 +467,49 @@ export class CronAIElement extends Base {
       const name = this.getAttribute('name');
       const kind = this.getAttribute('form-value') ?? 'cron';
       const primary = !r.ok ? '' : kind === 'json' ? JSON.stringify(r.schedule) : kind === 'text' ? this.text : kind === 'description' ? r.description : r.crons.join('\n');
-      if (name && r.ok) {
+      if (name) {
         const fd = new FormData();
         fd.append(name, primary);
-        if (kind !== 'json') fd.append(`${name}-json`, JSON.stringify(r.schedule));
+        fd.append(`${name}-text`, this.text);
+        if (r.ok && kind !== 'json') fd.append(`${name}-json`, JSON.stringify(r.schedule));
         this.internals.setFormValue(fd, this.text);
       } else this.internals.setFormValue(primary, this.text);
-      if (this.hasAttribute('required') && !r.ok) {
-        this.internals.setValidity({ customError: true }, r.error ?? this.S.notUnderstood, this.refs.input);
+      const empty = !this.text.trim();
+      const anchor = this.refs.input;
+      if (empty && this.hasAttribute('required')) {
+        this.internals.setValidity({ valueMissing: true }, this.S.requiredMsg, anchor);
+      } else if (!empty && !r.ok && (this.hasAttribute('required') || this.hasAttribute('must-understand'))) {
+        this.internals.setValidity({ badInput: true }, r.error ?? this.S.notUnderstood, anchor);
       } else this.internals.setValidity({});
     } catch {
       /* older browsers */
     }
+  }
+
+  /** Optional time-zone picker (section "zone"): changing it re-times the schedule and the form value. */
+  private zonePicker(disabled: boolean): HTMLElement {
+    const S = this.S;
+    const local = localTimeZone();
+    let zones: string[] = [];
+    try {
+      zones = (Intl as unknown as { supportedValuesOf?: (k: string) => string[] }).supportedValuesOf?.('timeZone') ?? [];
+    } catch {
+      zones = [];
+    }
+    if (!zones.length) zones = FALLBACK_ZONES;
+    const cur = this.tz();
+    const list = [...new Set(['UTC', ...zones, ...(cur ? [cur] : [])])].sort((a, b) => (a === 'UTC' ? -1 : b === 'UTC' ? 1 : a.localeCompare(b)));
+    const sel = h('select', {
+      part: 'zone-select',
+      'aria-label': S.zone,
+      disabled,
+      onchange: (e: Event) => this.setAttribute('timezone', (e.target as HTMLSelectElement).value || 'auto'),
+    }) as HTMLSelectElement;
+    sel.append(h('option', { value: '' }, fill(S.zoneLocal, { tz: local.replace(/_/g, ' ') })));
+    for (const z of list) sel.append(h('option', { value: z }, z.replace(/_/g, ' ')));
+    sel.value = cur ?? '';
+    this.refs.zoneSel = sel;
+    return h('label', { class: 'zone', part: 'zone' }, h('span', { class: 'label' }, S.zone), sel);
   }
 
   // ================================================================== DOM
@@ -442,6 +517,7 @@ export class CronAIElement extends Base {
     this.S = resolveStrings(this.mode, { ...this.attrStrings(), ...this._strings });
     this.vis = resolveSections(this.mode, this.size, this.getAttribute('show'), this.getAttribute('hide'));
     this.build();
+    this.card.addEventListener('click', this.onCardClick);
     this.render(false);
     this.renderTrigger();
   }
@@ -485,7 +561,7 @@ export class CronAIElement extends Base {
       r.out = h('div', { class: 'out', 'aria-live': 'polite' }, h('span', { class: 'dots' }, h('i'), h('i'), h('i')),
         this.on('cron') ? r.code : null, this.on('description') ? r.mdesc : null, this.on('runs') ? r.mrun : null);
       this.card = h('div', { class: `card mini inbox ${this.mode}`, part: 'card' },
-        h('div', { class: 'inrow' }, r.input, this.on('copy') ? r.copy : null), r.out);
+        h('div', { class: 'inrow' }, r.input, this.on('copy') ? r.copy : null), r.out, this.on('zone') ? this.zonePicker(disabled) : null);
       this.root.append(this.card);
       this.built = true;
       return;
@@ -515,6 +591,7 @@ export class CronAIElement extends Base {
 
     const kids: (Node | null)[] = [head];
     if (this.on('input')) kids.push(h('div', { class: 'inbox' }, r.input, this.on('status') ? r.status : null));
+    if (this.on('zone')) kids.push(this.zonePicker(disabled));
     if (this.on('chips')) kids.push(r.chipsSec);
 
     // result block
@@ -592,6 +669,7 @@ export class CronAIElement extends Base {
     const hour12 = this.hasAttribute('hour12');
     const tz = this.tz();
     const empty = !this.text.trim();
+    if (r.zoneSel && (r.zoneSel as HTMLSelectElement).value !== (tz ?? '')) (r.zoneSel as HTMLSelectElement).value = tz ?? '';
 
     if (this.size === 'mini') {
       r.out.classList.toggle('err', !res.ok && !empty);
@@ -845,7 +923,10 @@ export interface MountOptions {
   schedule?: SavedSchedule | string;
   name?: string;
   formValue?: 'cron' | 'json' | 'text' | 'description';
+  /** must be filled in and understood */
   required?: boolean;
+  /** may stay empty, but typed text must be understood */
+  mustUnderstand?: boolean;
   timezone?: string;
   placeholder?: string;
   heading?: string;
@@ -880,6 +961,7 @@ export function mount(target: string | Element, o: MountOptions = {}): CronAIEle
   set('name', o.name);
   set('form-value', o.formValue);
   if (o.required) set('required', '');
+  if (o.mustUnderstand) set('must-understand', '');
   set('timezone', o.timezone);
   set('placeholder', o.placeholder);
   set('heading', o.heading);
@@ -920,6 +1002,8 @@ export function autoMount(scope: ParentNode = document) {
       schedule: d.schedule,
       name: d.name,
       formValue: d.formValue as MountOptions['formValue'],
+      required: d.required !== undefined,
+      mustUnderstand: d.mustUnderstand !== undefined,
       timezone: d.timezone,
       placeholder: d.placeholder,
       heading: d.heading,
@@ -929,6 +1013,15 @@ export function autoMount(scope: ParentNode = document) {
       hide: d.hide?.split(','),
       strings,
     });
+    // data-text-target always receives what was typed (also when empty or not understood)
+    if (d.textTarget) {
+      const tt = document.querySelector<HTMLInputElement>(d.textTarget);
+      el.addEventListener('cronchange', (e) => {
+        if (!tt) return;
+        tt.value = (e as CustomEvent<CronChangeDetail>).detail.text;
+        tt.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
     if (d.target) {
       const target = document.querySelector<HTMLInputElement>(d.target);
       const kind = d.targetValue ?? 'cron';

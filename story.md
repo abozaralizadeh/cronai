@@ -42,6 +42,8 @@ The constraint I set: **small local AI, integrated in the code, zero extra integ
 - **"at 11" vs "every night at 11"**: day parts act as AM/PM context, otherwise the 24-hour reading is kept and flagged.
 - **Rendering on web**: the web demo is the real component compiled with react-native-web and esbuild into a single 570 KB HTML file.
 
+- **Real users find the corners**: the first site to embed the widget sent six notes in one go. Two were engine bugs hiding in plain sight. "at 2:30 every night" came out as 14:30 because "night" was treated as a plain PM marker, but people mean the small hours too. And `1-7` quietly dropped Sunday, because cron allows both 0 and 7 for Sunday and a range ending in 7 was clipped to Saturday.
+
 ## Screenshots
 
 | | |
@@ -92,6 +94,7 @@ Everything a visitor needs is static: one HTML page for the builder, one for the
 
 ## Progress log
 
+- **2026-10-04**: integration feedback round. "at 2:30 every night" now means 02:30 (with a note), `1-7` / `5-7` keep Sunday, forms always send what was typed (`<name>-text`) and gained `must-understand`, clicking the card or `el.focus()` reaches the text box, 16px text on phones (no iOS zoom), optional built-in time-zone picker (`show="zone"`).
 - **2026-10-04**: demo video committed through Git LFS (`*.mp4`, `*.mov`, `*.webm` tracked in `.gitattributes`) so the repo history stays small.
 - **2026-10-04**: 29 s LinkedIn demo video of the real widget (`docs/media/cronai-linkedin-4x5.mp4`, 1080x1350, cover `docs/media/cronai-linkedin-cover.png`). Recorded with `scripts/video/record.py` (Playwright CDP screencast + ffmpeg). LinkedIn can't embed CodePen, so native video is the way to show it there.
 - **2026-10-04**: live CodePen demo (https://codepen.io/Abozar-Alizadeh/pen/MYpELpx) embedded in the Medium draft, right after the intro. Loads the widget from jsDelivr (`cronai@master`).

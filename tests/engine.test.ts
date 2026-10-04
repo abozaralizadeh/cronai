@@ -71,6 +71,13 @@ const CASES: [string, string | string[]][] = [
   ['thrusday mornign at 7:45', '45 7 * * 4'],
   // task text around the schedule
   ['backup the database every night at 2am', '0 2 * * *'],
+  // day parts resolve hours without am/pm; "night" also covers the small hours
+  ['at 2:30 every night', '30 2 * * *'],
+  ['every night at 2', '0 2 * * *'],
+  ['every night at 12', '0 0 * * *'],
+  ['every evening at 7:30', '30 19 * * *'],
+  ['at 10 at night', '0 22 * * *'],
+  ['at noon every night', '0 12 * * *'],
   ['please send the weekly report every monday at 8:30', '30 8 * * 1'],
   // already cron
   ['*/5 * * * *', '*/5 * * * *'],
@@ -126,6 +133,24 @@ test('every N weeks: same weeks stay on with a saved anchor', () => {
   const a = parseSchedule('every other saturday at 10am', { now: NOW });
   const later = parseSchedule('every other saturday at 10am', { now: new Date(NOW.getTime() + 7 * DAY), anchor: a.guard!.anchor });
   assert.equal(later.nextRuns[0].date.getTime(), a.nextRuns[1].date.getTime());
+});
+
+test('night: early hours stay AM and say so', () => {
+  const r = parseSchedule('at 2:30 every night', { now: NOW });
+  assert.deepEqual(r.crons, ['30 2 * * *']);
+  assert.ok(r.assumptions.some((a) => /02:30/.test(a) && /night/.test(a)), r.assumptions.join(' | '));
+  assert.equal(parseSchedule('2:30am every night', { now: NOW }).assumptions.length, 0);
+  assert.equal(parseSchedule('every night at 11', { now: NOW }).assumptions.length, 0);
+});
+
+test('weekday 7 is Sunday, also at the end of a range', () => {
+  const sundays = (e: string) => nextRuns(e, 14, NOW).filter((d) => d.getDay() === 0).length;
+  for (const e of ['0 9 * * 1-7', '0 9 * * 5-7', '0 9 * * 0-7', '0 9 * * 6-7']) assert.ok(sundays(e) > 0, e);
+  assert.deepEqual(nextRuns('0 9 * * 5-7', 3, NOW).map((d) => d.getDay()), [6, 0, 5]); // NOW is Friday noon
+  assert.equal(describeCron('0 9 * * 1-7'), 'At 09:00 every day');
+  assert.equal(describeCron('0 9 * * 0-7'), 'At 09:00 every day');
+  assert.equal(describeCron('0 9 * * 6-7'), 'At 09:00 on weekends');
+  assert.equal(describeCron('0 9 * * 5-7'), 'At 09:00 on Friday through Sunday');
 });
 
 test('every saturday has no guard', () => {

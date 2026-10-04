@@ -58,13 +58,16 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - Builder template placeholders: __SCRIPT_BASE__ (jsDelivr in the artifact build, empty on Pages = same-site ./widget/), __SCRIPT_HINT__, __HEADER_LINKS__, __WIDGET_JS__, __FULL_GZ__, __LITE_GZ__.
 - Visitor mode (`mode="user"`): no cron/tiles/guard by default, notesFor() strips cron wording. Any new visible text goes in DEFAULT_STRINGS (never hard-code), any new UI block gets a Section name so show/hide works in both UIs.
 - Time zones: all next-run code takes an optional IANA `timezone`; SavedSchedule always stores one. createTrigger fires a missed run once on wake-up (`late: true`).
-- Bare hours ("at 9") stay 24h with an assumption, unless a day part ("night") or am/pm context resolves them.
+- Bare hours ("at 9") stay 24h with an assumption, unless a day part or am/pm resolves them. Day parts go through `merFor()` in interpret.ts: "night" keeps 1-5 as AM ("2:30 every night" = 02:30, with an assumption) and makes 6-11 PM; noon is `fixed` and never re-read.
+- Weekday 7 = Sunday, also at the end of a range (`1-7`, `5-7`): handled in `expandSimple` (cron.ts) and `valuesOf` (describe.ts).
+- Widget forms: with `name` it always sends `<name>-text`, plus `<name>-json` when understood. `required` = filled + understood (valueMissing / badInput), `must-understand` = empty OK. Shadow root uses `delegatesFocus`; `onCardClick` focuses the text box. Section `zone` (widget only) is a time-zone picker that sets the `timezone` attribute (`auto` = visitor's). Touch screens get 16px inputs (iOS zoom).
 - `compressList` avoids AP compression for weekdays and short lists (readability).
 - Animated: use `useNativeDriver: NATIVE` (false on web). Width animations use `false`.
 - Web demo build aliases `react-native` → `react-native-web` and stubs `expo-status-bar`.
 - Owner preferences: never do git work unless asked; keep README.md, story.md, CLAUDE.md, setup_service.sh, .vscode/launch.json updated; logs go to journal + size-capped `logs/cronai.log`.
 
-## Status (2026-10-03)
+## Status (2026-10-04)
+- 2026-10-04: fixes from integration feedback: night day-part hours, weekday 7 in ranges, form `-text` + `must-understand`, delegatesFocus, 16px touch inputs, `zone` picker section. 93 engine tests, 46 widget checks.
 - 2026-10-03: GitHub Pages hosting (workflow + build:pages). Action versions: checkout@v6, setup-node@v7, configure-pages@v5, upload-pages-artifact@v5, deploy-pages@v5.
 - 2026-10-03: customisable for site owners whose visitors pick a frequency: mode developer/user, show/hide sections, strings, timezone, SavedSchedule JSON, createTrigger (browser + Node engine bundle), form-value, schedule restore, /api/next. 85 engine tests, 32 widget checks.
 - Model name: **CronLex** (MODEL.name in weights.ts, written by the trainer).

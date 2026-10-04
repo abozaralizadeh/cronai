@@ -25,6 +25,7 @@ export const SECTIONS = [
   'timezone', // "Times in Europe/Rome"
   'trigger', // arm switch + countdown
   'examples', // example chips
+  'zone', // time-zone picker (web widget only, off by default)
 ] as const;
 export type Section = (typeof SECTIONS)[number];
 
@@ -89,6 +90,9 @@ export const DEFAULT_STRINGS = {
   guardText: "Cron alone can't skip weeks, so this crontab line adds a week check. The trigger and next runs here already apply it.",
   guardLine: 'Cron runs weekly + a week guard keeps every {nth} week.',
   timezone: 'Times in {tz}',
+  zone: 'Time zone',
+  zoneLocal: 'Your time zone ({tz})',
+  requiredMsg: 'Please describe a schedule.',
   extNote: 'Uses the L / # extension (Quartz, cron-parser, AWS, node-cron). Not plain crontab.',
   roleInterval: 'frequency',
   roleTime: 'time',

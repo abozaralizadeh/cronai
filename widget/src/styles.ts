@@ -140,6 +140,11 @@ textarea::placeholder, input.line::placeholder { color: var(--cai-faint); }
 .gline { font-size: 12px; color: var(--cai-f4); }
 .desc.big { font-size: 17px; font-weight: 600; letter-spacing: -.2px; }
 .tzline { font-size: 11.5px; color: var(--cai-faint); }
+.zone { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.zone select { font: inherit; font-size: 13px; color: var(--cai-text); background: var(--cai-surface-alt); border: 1px solid var(--cai-border);
+  border-radius: 99px; padding: 5px 10px; min-width: 0; max-width: 100%; flex: 1 1 180px; cursor: pointer; }
+.zone select:focus-visible { outline: 2px solid var(--cai-accent); outline-offset: 2px; }
+.mini .zone { margin-top: 2px; }
 .mini .out .md.strong { color: var(--cai-text); font-weight: 600; font-size: 13px; }
 .mini .out .mrun { color: var(--cai-muted); white-space: nowrap; font-size: 11.5px; }
 .card.user.compact { gap: 12px; }
@@ -220,6 +225,10 @@ textarea::placeholder, input.line::placeholder { color: var(--cai-faint); }
 .compact .nextline { font-size: 12px; color: var(--cai-muted); display: flex; gap: 6px; flex-wrap: wrap; }
 .compact .nextline b { font-family: var(--cai-mono); color: var(--cai-text); font-weight: 600; }
 
+/* touch screens: 16px text so iOS doesn't zoom in when the box gets focus */
+@media (pointer: coarse), (hover: none) {
+  textarea, .compact textarea, input.line, .mini input.line, .zone select { font-size: 16px; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

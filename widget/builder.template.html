@@ -183,7 +183,7 @@
         </div>
       </div>
       <div class="field">
-        <label class="lbl" for="fieldName">Form field name <span style="text-transform:none;letter-spacing:0">(optional; also sends &lt;name&gt;-json)</span></label>
+        <label class="lbl" for="fieldName">Form field name <span style="text-transform:none;letter-spacing:0">(optional; also sends &lt;name&gt;-text and &lt;name&gt;-json)</span></label>
         <input type="text" id="fieldName" placeholder="schedule">
       </div>
       <details class="more">
@@ -239,12 +239,14 @@
         <tbody>
           <tr><td><code>mode</code></td><td><code>developer</code> · <code>user</code></td><td><code>user</code> is for your visitors: no cron, tiles or crontab lines, friendlier text, 3 upcoming runs.</td></tr>
           <tr><td><code>size</code></td><td><code>mini</code> · <code>compact</code> · <code>full</code></td><td>Layout.</td></tr>
-          <tr><td><code>show</code>, <code>hide</code></td><td><code>badge title input status chips tiles cron copy guard description confidence notes runs timezone trigger examples</code>, or <code>all</code></td><td>Add or remove parts on top of the mode/size defaults. <code>show="only runs description"</code> starts from nothing.</td></tr>
+          <tr><td><code>show</code>, <code>hide</code></td><td><code>badge title input status chips tiles cron copy guard description confidence notes runs timezone trigger examples zone</code>, or <code>all</code></td><td>Add or remove parts on top of the mode/size defaults. <code>show="only runs description"</code> starts from nothing.</td></tr>
           <tr><td><code>strings</code></td><td>JSON</td><td>Re-word or translate any text. Also the <code>el.strings</code> property.</td></tr>
           <tr><td><code>theme</code></td><td><code>auto</code> · <code>aurora</code> · <code>paper</code> · <code>terminal</code> · <code>sunset</code> · <code>glacier</code> · <code>forest</code> · <code>candy</code></td><td><code>auto</code> follows the visitor's light or dark setting.</td></tr>
           <tr><td><code>timezone</code></td><td>IANA name or <code>auto</code></td><td>Zone the times are meant in. Saved with the schedule, so your server runs "9am" at the visitor's 9am.</td></tr>
           <tr><td><code>value</code> / <code>schedule</code></td><td>text / saved JSON</td><td>Starting text, or restore a saved choice (text, zone and every-N-weeks) in edit forms. Both are also properties.</td></tr>
-          <tr><td><code>name</code>, <code>form-value</code>, <code>required</code></td><td><code>cron</code> · <code>json</code> · <code>text</code> · <code>description</code></td><td>Works in a <code>&lt;form&gt;</code>; also sends <code>&lt;name&gt;-json</code> with the full schedule.</td></tr>
+          <tr><td><code>name</code>, <code>form-value</code></td><td><code>cron</code> · <code>json</code> · <code>text</code> · <code>description</code></td><td>Works in a <code>&lt;form&gt;</code>; also sends <code>&lt;name&gt;-text</code> (always, what was typed) and <code>&lt;name&gt;-json</code> (when understood).</td></tr>
+          <tr><td><code>required</code>, <code>must-understand</code></td><td>flags</td><td><code>required</code>: filled in and understood. <code>must-understand</code>: may stay empty, but typed text must be understood.</td></tr>
+          <tr><td><code>show="zone"</code></td><td>section</td><td>Built-in time-zone picker; defaults to the visitor's zone and goes into the schedule JSON.</td></tr>
           <tr><td><code>armed</code>, <code>arm()</code>, <code>disarm()</code></td><td>flag</td><td>Fires <code>crontrigger</code> on schedule while the page is open, in any size, even with the trigger part hidden.</td></tr>
           <tr><td><code>cronchange</code> event</td><td><code>detail.schedule</code>, <code>cron</code>, <code>crons</code>, <code>description</code>, <code>nextRuns</code>, <code>timezone</code>, <code>ok</code></td><td>Fires on every new interpretation, and once on load.</td></tr>
           <tr><td><code>CronAI.createTrigger(schedule, fn)</code></td><td>browser / Node</td><td>Run your code at the times a visitor picked. Node: <code>cronai-engine.esm.js</code>.</td></tr>

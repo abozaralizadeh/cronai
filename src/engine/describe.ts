@@ -54,7 +54,8 @@ function atoms(field: string, fname: FieldName): Atom[] {
       return { kind: 'step', from, to: step[2] ? norm(step[2]) : null, step: parseInt(step[3], 10) };
     }
     const range = /^(\d+)-(\d+)$/.exec(p);
-    if (range) return { kind: 'range', from: norm(range[1]), to: norm(range[2]) };
+    // weekday ranges keep 7 as the end (1-7 = Monday..Sunday); valuesOf folds it back to 0
+    if (range) return { kind: 'range', from: norm(range[1]), to: fname === 'dow' ? parseInt(range[2], 10) : norm(range[2]) };
     if (/^\d+$/.test(p)) return { kind: 'value', v: norm(p) };
     return { kind: 'raw', text: p };
   });
@@ -64,8 +65,10 @@ function valuesOf(field: string, fname: FieldName): number[] | null {
   const out: number[] = [];
   for (const a of atoms(field, fname)) {
     if (a.kind === 'value') out.push(a.v);
-    else if (a.kind === 'range') for (let v = a.from; v <= a.to; v++) out.push(v);
-    else return null;
+    else if (a.kind === 'range') {
+      if (fname === 'dow' && a.to < a.from) for (let v = a.from; v <= a.to + 7; v++) out.push(v % 7); // FRI-MON
+      else for (let v = a.from; v <= a.to; v++) out.push(fname === 'dow' ? v % 7 : v);
+    } else return null;
   }
   return out;
 }
@@ -137,7 +140,7 @@ function describeDow(dow: string): string {
   let ofMonth = false;
   for (const a of atoms(dow, 'dow')) {
     if (a.kind === 'value') parts.push(DAY_LABELS[a.v]);
-    else if (a.kind === 'range') parts.push(`${DAY_LABELS[a.from]} through ${DAY_LABELS[a.to]}`);
+    else if (a.kind === 'range') parts.push(`${DAY_LABELS[a.from % 7]} through ${DAY_LABELS[a.to % 7]}`);
     else if (a.kind === 'step') parts.push(`every ${a.step} days of the week`);
     else if (a.kind === 'raw') {
       const nth = /^(\d)#(\d)$/.exec(a.text);

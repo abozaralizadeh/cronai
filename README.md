@@ -2,7 +2,7 @@
 
 A beautiful, themeable **React Native cron trigger component** that turns plain-English schedules into cron expressions using **CronLex**, a tiny on-device AI model. It also ships as a **drop-in web widget** (`<cron-ai>`) for any website. No server, no API key, no native modules, no extra packages: the model weights live inside the source code and run in pure TypeScript.
 
-**Try it live:** [CronAI on CodePen](https://codepen.io/Abozar-Alizadeh/pen/MYpELpx) · [30-second demo video](docs/media/cronai-linkedin-4x5.mp4)
+**Try it live:** [widget builder](https://abozaralizadeh.github.io/cronai/) · [React Native demo](https://abozaralizadeh.github.io/cronai/demo/) · [CodePen](https://codepen.io/Abozar-Alizadeh/pen/MYpELpx) · [30-second demo video](docs/media/cronai-linkedin-4x5.mp4)
 
 > The demo video is stored with [Git LFS](https://git-lfs.com). Run `git lfs install` once before cloning to get the real file instead of a pointer.
 
@@ -45,7 +45,7 @@ One script tag, then the tag anywhere. No framework, no build step. Three sizes:
 
 - **Builds** (`npm run build:widget` → `widget/dist/`): `cronai-widget.js` (IIFE, ~100 KB gzip, with CronLex), `cronai-widget.esm.js` (ES module), `cronai-widget.lite.js` (~25 KB gzip, exact words only, no typo correction), `embed.html` (iframe page).
 - **Themes**: `auto` (follows the visitor's light/dark) plus the 7 palettes. Restyle with CSS variables: `cron-ai { --cai-accent: #e11d48; --cai-font: inherit }`, or `::part(card|input|cron|tiles|copy)`.
-- **Forms**: it is form-associated, so inside a `<form>` it submits the cron line(s) under `name` (supports `required`).
+- **Forms**: it is form-associated, so inside a `<form>` it submits the cron line(s) under `name`, plus `<name>-text` (always, what was typed) and `<name>-json` (when understood). `required` = filled in and understood; `must-understand` = may stay empty, but typed text has to be understood. `el.focus()`, label clicks and clicks anywhere on the card focus the text box.
 - **Events**: `cronchange` (`detail.cron`, `crons`, `description`, `confidence`, `ok`) and `crontrigger` (full size, when `armed`).
 - **CMS that strips tags**: `<div data-cronai data-size="mini" data-target="#my-input"></div>`.
 - **No scripts allowed**: `<iframe src=".../embed.html?size=compact&theme=auto&value=...">`; it posts `change` and `resize` messages to the parent.
@@ -89,6 +89,16 @@ const [next] = scheduleNextRuns(user.schedule, 1);   // or enqueue in your own j
 
 Restore it in an edit form with `<cron-ai mode="user" schedule='…saved json…'>` (or `el.schedule = saved`). Server API: `GET /api/next?schedule=<json>&n=5`.
 
+What the form sends, so your server can tell "left empty" from "typed but not understood":
+
+| The visitor… | `reminder` | `reminder-text` | `reminder-json` | valid with `required` | valid with `must-understand` |
+|---|---|---|---|---|---|
+| left it empty | `""` | `""` | (none) | no | yes |
+| typed something it can't read | `""` | what they typed | (none) | no | no |
+| typed a schedule | cron / json / text / description | what they typed | the SavedSchedule | yes | yes |
+
+Add `show="zone"` for a built-in time-zone picker (defaults to the visitor's zone; the choice goes into the schedule JSON). On touch screens the text box uses 16px text so iOS doesn't zoom in.
+
 ### Make it yours
 
 Everything visible can be changed, in the web widget and the React Native component alike:
@@ -97,10 +107,10 @@ Everything visible can be changed, in the web widget and the React Native compon
 |---|---|---|
 | Audience | `mode="developer"` (default) or `"user"` | `mode` |
 | Layout | `size="mini \| compact \| full"` | (full) |
-| Which parts show | `show` / `hide` with any of `badge title input status chips tiles cron copy guard description confidence notes runs timezone trigger examples` (also `all`, `show="only …"`) | `show` / `hide` arrays (+ `themes`) |
+| Which parts show | `show` / `hide` with any of `badge title input status chips tiles cron copy guard description confidence notes runs timezone trigger examples zone` (also `all`, `show="only …"`) | `show` / `hide` arrays (+ `themes`) |
 | Every text | `strings='{"heading":"Ogni quanto?","nextRuns":"Prossime"}'` or `el.strings = {…}` | `strings` |
-| Time zone | `timezone="Europe/Rome"` (default: visitor's) | `timezone` |
-| Form output | `name`, `form-value="cron \| json \| text \| description"`, `required` | `onScheduleChange(schedule)` |
+| Time zone | `timezone="Europe/Rome"` (default: visitor's), `show="zone"` for a picker | `timezone` |
+| Form output | `name` (+ `<name>-text`, `<name>-json`), `form-value="cron \| json \| text \| description"`, `required`, `must-understand` | `onScheduleChange(schedule)` |
 | Restore | `schedule='{…}'` / `el.schedule = saved` | `defaultSchedule` |
 | Look | `theme`, CSS variables `--cai-*`, `::part(<section>)` | `theme`, `createTheme()` |
 | Live trigger | `armed` / `arm()` / `crontrigger` event, works with the trigger part hidden | `armed` / `onTrigger`, or `useCronTrigger(schedule)` |

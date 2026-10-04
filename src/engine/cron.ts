@@ -115,7 +115,12 @@ function expandSimple(part: string, field: FieldName): number[] {
     const [a, b] = range.split('-');
     lo = num(a, field);
     hi = num(b, field);
-    if (field === 'dow' && b === '7') hi = 6; // MON-SUN written as 1-7
+    if (field === 'dow' && b === '7') {
+      // 7 is Sunday too: 1-7 = Monday..Sunday, 5-7 = Friday..Sunday
+      const out: number[] = [];
+      for (let v = lo; v <= 7; v += step) out.push(v % 7);
+      return out;
+    }
     if (hi < lo) {
       // wrap-around ranges like FRI-MON or 22-2
       const out: number[] = [];

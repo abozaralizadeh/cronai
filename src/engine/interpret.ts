@@ -58,6 +58,8 @@ interface TP {
   h: number;
   m: number;
   mer: 'am' | 'pm' | null;
+  /** noon: never re-read by a day part */
+  fixed?: boolean;
   end: number;
   clock: boolean; // written like a clock (colon / am-pm / noon) rather than a bare number
 }
@@ -160,7 +162,7 @@ export function interpret(tk: Tokenized): Semantics {
   const parseTime = (i: number, allowBare: boolean): TP | null => {
     const t = T[i];
     if (!t) return null;
-    if (isW(i, 'noon')) return { h: 12, m: 0, mer: null, end: i + 1, clock: true };
+    if (isW(i, 'noon')) return { h: 12, m: 0, mer: null, end: i + 1, clock: true, fixed: true };
     if (isW(i, 'midnight')) return { h: 0, m: 0, mer: null, end: i + 1, clock: true };
     if (isW(i, 'half') && isW(i + 1, 'past')) {
       const h = hourAt(i + 2);
@@ -211,22 +213,44 @@ export function interpret(tk: Tokenized): Semantics {
     return null;
   };
 
+  /**
+   * AM/PM implied by a day part for a 12-hour clock value. "night" covers both
+   * late evening and the small hours: "11 at night" is 23:00, "2:30 every night" is 02:30.
+   */
+  const merFor = (h: number, part: DayPart): 'am' | 'pm' | null => {
+    if (h > 12) return null; // already 24-hour
+    if (part === 'morning') return 'am';
+    if (part === 'afternoon') return 'pm';
+    if (part === 'evening') return h === 12 ? 'am' : 'pm';
+    return h === 12 || h <= 5 ? 'am' : 'pm'; // night
+  };
+  /** Say so when "night" turned an ambiguous hour into the small hours. */
+  const noteNight = (h: number, m: number, part: DayPart) => {
+    if (part !== 'night' || h > 5 || h === 0) return;
+    const hm = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+    const said = m ? `${h}:${String(m).padStart(2, '0')}` : `${h}`;
+    sem.assumptions.push(`Read "${said}" at night as ${hm} (early morning). Say "${said}pm" for the afternoon.`);
+  };
+
   /** "in the evening", "at night", "in the morning" right after a time */
-  const contextMer = (j: number): { mer: 'am' | 'pm'; end: number } | null => {
+  const contextPart = (j: number): { part: DayPart; end: number } | null => {
     let k = j;
     let guard = 0;
-    while ((isW(k, 'in', 'at', 'every') || isThe(k)) && guard++ < 3) k++;
-    if (isW(k, 'morning')) return { mer: 'am', end: k + 1 };
-    if (isW(k, 'afternoon', 'evening', 'night')) return { mer: 'pm', end: k + 1 };
+    while ((isW(k, 'in', 'at', 'every', 'each') || isThe(k)) && guard++ < 3) k++;
+    const v = w(k);
+    if (v === 'morning' || v === 'afternoon' || v === 'evening' || v === 'night') return { part: v, end: k + 1 };
     return null;
   };
 
-  const ambiguous: number[] = []; // indexes into sem.times of bare 1-11 hours
+  const ambiguous: number[] = []; // indexes into sem.times of 1-12 hours without am/pm
+  const clockIdx = new Set<number>(); // of those, the ones written as clock times (9:30), which read as 24-hour without a note
   const pushTimes = (tps: TP[]) => {
     for (const tp of tps) {
       const h = to24(tp.h, tp.mer);
-      if (!tp.mer && (tp.h >= 1 && tp.h <= 11) && (!tp.clock || T.some((t) => t.k === 'time'))) {
-        if (!tp.clock) ambiguous.push(sem.times.length);
+      // bare or clock-style 1-12 without am/pm: a day part elsewhere in the sentence may resolve it
+      if (!tp.mer && !tp.fixed && tp.h >= 1 && tp.h <= 12) {
+        if (tp.clock) clockIdx.add(sem.times.length);
+        ambiguous.push(sem.times.length);
       }
       if (h > 23 || tp.m > 59) {
         sem.warnings.push(`Ignored invalid time ${tp.h}:${tp.m}`);
@@ -739,8 +763,9 @@ export function interpret(tk: Tokenized): Semantics {
     if (isW(i, 'past') && (i === 0 || (numAt(i - 1) === null && !isW(i - 1, 'half', 'quarter', 'minute')))) {
       const tp = parseTime(i + 1, true);
       if (tp) {
-        const ctx = !tp.mer ? contextMer(tp.end) : null;
-        const h = to24(tp.h, tp.mer ?? ctx?.mer ?? null);
+        const ctx = !tp.mer ? contextPart(tp.end) : null;
+        const h = to24(tp.h, tp.mer ?? (ctx ? merFor(tp.h, ctx.part) : null));
+        if (ctx && !tp.mer) noteNight(tp.h, tp.m, ctx.part);
         sem.window = { sh: h, sm: tp.m, eh: 24, em: 0 };
         sem.signals++;
         exclude = false;
@@ -788,9 +813,13 @@ export function interpret(tk: Tokenized): Semantics {
       tps.push(nx);
       k = nx.end;
     }
-    const ctx = contextMer(k);
+    const ctx = contextPart(k);
     if (ctx) {
-      for (const tp of tps) if (!tp.mer) tp.mer = ctx.mer;
+      for (const tp of tps) {
+        if (tp.mer || tp.fixed) continue;
+        tp.mer = merFor(tp.h, ctx.part);
+        if (tp.mer) noteNight(tp.h, tp.m, ctx.part);
+      }
       k = ctx.end;
     }
     // shared trailing meridiem: "at 9 and 11 pm"
@@ -933,13 +962,13 @@ export function interpret(tk: Tokenized): Semantics {
 
   // Resolve bare hours like "at 11" using day-part context ("every night at 11" -> 23:00)
   if (ambiguous.length) {
-    const pmPart = sem.dayParts.find((p) => p !== 'morning');
-    const amPart = sem.dayParts.includes('morning');
+    const part = sem.dayParts.find((p) => p !== 'morning') ?? sem.dayParts[0];
     for (const idx of ambiguous) {
       const t = sem.times[idx];
-      if (pmPart && t.h < 12) {
-        sem.times[idx] = { h: t.h + 12 === 24 ? 0 : t.h + 12, m: t.m };
-      } else if (!amPart && !pmPart) {
+      if (part) {
+        sem.times[idx] = { h: to24(t.h, merFor(t.h, part)), m: t.m };
+        noteNight(t.h, t.m, part);
+      } else if (t.h <= 11 && !clockIdx.has(idx)) {
         const hh = String(t.h).padStart(2, '0');
         sem.assumptions.push(`Read "${t.h}" as ${hh}:${String(t.m).padStart(2, '0')} (24-hour). Say "${t.h}pm" for the afternoon.`);
       }
