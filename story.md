@@ -94,6 +94,7 @@ Everything a visitor needs is static: one HTML page for the builder, one for the
 
 ## Progress log
 
+- **2026-10-04**: favicon for the Pages site: a glowing teal-to-violet progress ring around clock hands on a deep navy tile, with a bright dot where the next run starts. Shipped as SVG, ICO, PNGs, apple-touch-icon and a web manifest. (The first version, a flat clock with a sparkle, looked dated and got replaced the same day.)
 - **2026-10-04**: integration feedback round. "at 2:30 every night" now means 02:30 (with a note), `1-7` / `5-7` keep Sunday, forms always send what was typed (`<name>-text`) and gained `must-understand`, clicking the card or `el.focus()` reaches the text box, 16px text on phones (no iOS zoom), optional built-in time-zone picker (`show="zone"`).
 - **2026-10-04**: demo video committed through Git LFS (`*.mp4`, `*.mov`, `*.webm` tracked in `.gitattributes`) so the repo history stays small.
 - **2026-10-04**: 29 s LinkedIn demo video of the real widget (`docs/media/cronai-linkedin-4x5.mp4`, 1080x1350, cover `docs/media/cronai-linkedin-cover.png`). Recorded with `scripts/video/record.py` (Playwright CDP screencast + ffmpeg). LinkedIn can't embed CodePen, so native video is the way to show it there.

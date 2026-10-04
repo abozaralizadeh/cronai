@@ -1,0 +1,15 @@
+{
+  "name": "CronAI Widget Builder",
+  "short_name": "CronAI",
+  "description": "Plain-English schedule picker. Type how often, get cron or a schedule JSON.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090C1C",
+  "theme_color": "#3451D1",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

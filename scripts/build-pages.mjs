@@ -4,11 +4,12 @@
  *   site/index.html          Widget Builder (full page, scripts served from this site)
  *   site/demo/index.html     React Native component demo (react-native-web build)
  *   site/widget/*            cronai-widget.js, .lite.js, .esm.js, cronai-engine.esm.js, embed.html
+ *   site/favicon.*, icons    from brand/ (regenerate with python3 scripts/make-icons.py), linked from every page
  *
  * Run `npm run build:demo && npm run build:widget` first (npm run build:pages does all three).
  * Override links with SITE_REPO_URL=https://github.com/<you>/<repo>.
  */
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -34,10 +35,21 @@ for (const f of ['cronai-widget.js', 'cronai-widget.esm.js', 'cronai-widget.lite
   copyFileSync(resolve(dist, f), resolve(site, 'widget', f));
 }
 
-// 2. demo
-copyFileSync(resolve(root, 'web/dist/index.html'), resolve(site, 'demo/index.html'));
+// 2. icons (favicon.svg / .ico / PNGs / manifest) at the site root, linked from every page by absolute path
+for (const f of readdirSync(resolve(root, 'brand'))) copyFileSync(resolve(root, 'brand', f), resolve(site, f));
+const iconLinks = [
+  `<link rel="icon" href="${base}favicon.ico" sizes="48x48">`,
+  `<link rel="icon" href="${base}favicon.svg" type="image/svg+xml">`,
+  `<link rel="apple-touch-icon" href="${base}apple-touch-icon.png">`,
+  `<link rel="manifest" href="${base}site.webmanifest">`,
+  '<meta name="theme-color" content="#3451D1">',
+].join('\n');
+const withIcons = (html) => html.replace(/<link rel="icon"[^>]*>\n?/g, '').replace(/<meta name="theme-color"[^>]*>\n?/g, '').replace(/<head>/i, `<head>\n${iconLinks}`);
 
-// 3. builder as a full standalone page
+// 3. demo
+writeFileSync(resolve(site, 'demo/index.html'), withIcons(readFileSync(resolve(root, 'web/dist/index.html'), 'utf8')));
+
+// 4. builder as a full standalone page
 const gz = (f) => (gzipSync(readFileSync(resolve(dist, f))).length / 1024).toFixed(0);
 const js = readFileSync(resolve(dist, 'cronai-widget.js'), 'utf8').replace(/<\/script/gi, '<\\/script');
 const tpl = readFileSync(resolve(root, 'widget/builder.template.html'), 'utf8')
@@ -46,7 +58,7 @@ const tpl = readFileSync(resolve(root, 'widget/builder.template.html'), 'utf8')
   .replace('__SCRIPT_BASE__', '')
   .replace(
     '__SCRIPT_HINT__',
-    `Served from this site. jsDelivr works too: <code>https://cdn.jsdelivr.net/gh/${repo.replace('https://github.com/', '')}@main/widget/dist/cronai-widget.js</code>.`,
+    `Served from this site. jsDelivr works too: <code>https://cdn.jsdelivr.net/gh/${repo.replace('https://github.com/', '')}@${process.env.SITE_BRANCH ?? 'master'}/widget/dist/cronai-widget.js</code>.`,
   )
   .replace('__HEADER_LINKS__', `<nav class="links"><a href="demo/">React Native component demo</a><a href="${repo}">Source on GitHub</a><a href="widget/cronai-widget.js">cronai-widget.js</a></nav>`)
   .replace('__WIDGET_JS__', () => js);
@@ -54,9 +66,6 @@ const tpl = readFileSync(resolve(root, 'widget/builder.template.html'), 'utf8')
 const split = tpl.indexOf('<div class="wrap">');
 const headPart = tpl.slice(0, split);
 const bodyPart = tpl.slice(split);
-const icon =
-  "data:image/svg+xml," +
-  encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#3451D1"/><circle cx="32" cy="32" r="18" fill="none" stroke="#fff" stroke-width="5"/><path d="M32 21v12l8 5" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>');
 const description = 'Embeddable plain-English schedule picker. Visitors type how often, you get cron or a schedule JSON. Runs a tiny on-device model, no server needed.';
 
 const page = `<!doctype html>
@@ -68,8 +77,6 @@ const page = `<!doctype html>
 <meta property="og:title" content="CronAI Widget Builder">
 <meta property="og:description" content="${description}">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#3451D1">
-<link rel="icon" href="${icon}">
 <style>
   :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
   html { -webkit-text-size-adjust: 100%; }
@@ -84,14 +91,15 @@ ${bodyPart.trim()}
 </body>
 </html>
 `;
-writeFileSync(resolve(site, 'index.html'), page);
+writeFileSync(resolve(site, 'index.html'), withIcons(page));
 
-// 4. small 404 that sends people to the builder
+// 5. small 404 that sends people to the builder
 writeFileSync(
   resolve(site, '404.html'),
-  `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Not found · CronAI</title>
+  `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Not found · CronAI</title>
+${iconLinks}</head><body>
 <style>body{font:16px system-ui,sans-serif;margin:0;display:grid;place-items:center;min-height:100vh;background:#ECEEF2;color:#14171C}a{color:#3451D1}@media (prefers-color-scheme:dark){body{background:#0E1014;color:#E7EAF0}a{color:#8FA2FF}}</style>
-<p>Page not found. <a href="${base}">Open the CronAI Widget Builder</a></p>`,
+<p>Page not found. <a href="${base}">Open the CronAI Widget Builder</a></p></body></html>`,
 );
 
-console.log('site/ ready:', ['index.html', '404.html', 'demo/index.html', 'widget/*'].join(', '));
+console.log('site/ ready:', ['index.html', '404.html', 'demo/index.html', 'widget/*', 'favicon + icons'].join(', '));

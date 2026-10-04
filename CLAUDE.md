@@ -36,6 +36,7 @@ widget/dist/                    BUILT files, committed on purpose (jsDelivr serv
 training/train_model.py         numpy-only trainer (synthetic typos), ~25 s
 .github/workflows/pages.yml     GitHub Pages deploy: npm ci, npm test, npm run build:pages, upload site/ (Source must be 'GitHub Actions')
 scripts/build-pages.mjs         site/ = builder (full page, scripts from ./widget/), demo/, widget/*, 404.html (site/ is git-ignored)
+brand/                          favicon.svg (source) + rendered favicon.ico/PNGs/apple-touch-icon + site.webmanifest; copied to the Pages root and linked from every page (scripts/make-icons.py re-renders)
 server/                         zero-dep demo + /api/parse server, rotating file logger
 scripts/                        build-web-demo.mjs (esbuild + react-native-web), eval.ts, try.ts, screenshot.py
 tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
@@ -67,6 +68,7 @@ tests/engine.test.ts            golden NL→cron cases (node:test via tsx)
 - Owner preferences: never do git work unless asked; keep README.md, story.md, CLAUDE.md, setup_service.sh, .vscode/launch.json updated; logs go to journal + size-capped `logs/cronai.log`.
 
 ## Status (2026-10-04)
+- 2026-10-04: favicon set for GitHub Pages (brand/, linked from builder, demo and 404).
 - 2026-10-04: fixes from integration feedback: night day-part hours, weekday 7 in ranges, form `-text` + `must-understand`, delegatesFocus, 16px touch inputs, `zone` picker section. 93 engine tests, 46 widget checks.
 - 2026-10-03: GitHub Pages hosting (workflow + build:pages). Action versions: checkout@v6, setup-node@v7, configure-pages@v5, upload-pages-artifact@v5, deploy-pages@v5.
 - 2026-10-03: customisable for site owners whose visitors pick a frequency: mode developer/user, show/hide sections, strings, timezone, SavedSchedule JSON, createTrigger (browser + Node engine bundle), form-value, schedule restore, /api/next. 85 engine tests, 32 widget checks.

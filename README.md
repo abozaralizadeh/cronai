@@ -117,7 +117,7 @@ Everything visible can be changed, in the web widget and the React Native compon
 
 ## Free hosting on GitHub Pages
 
-The Widget Builder, the demo and the widget scripts are static files, so GitHub Pages hosts them for free (public repo).
+The Widget Builder, the demo and the widget scripts are static files, so GitHub Pages hosts them for free (public repo). Icons live in `brand/` (edit `favicon.svg`, then `python3 scripts/make-icons.py`).
 
 1. Push the repo to GitHub (public).
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
